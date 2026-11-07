@@ -155,4 +155,4 @@ class BookingHistory(models.Model):
             f"{self.booking} — "
             f"{self.from_status or '—'} → {self.to_status}"
         )
-# Create your models here.
+
