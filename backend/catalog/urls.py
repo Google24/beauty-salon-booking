@@ -1,10 +1,14 @@
-# catalog/urls.py
-from django.urls import path
+from rest_framework.routers import DefaultRouter
 
-from . import views
+from .views import (
+    ServiceCategoryViewSet,
+    ServiceViewSet,
+    WorkplaceViewSet,
+)
 
-urlpatterns = [
-    path('', views.product_list),
-    path('1/', views.product_detail),
-    path('2/', views.product_detail),
-]
+router = DefaultRouter()
+router.register("categories", ServiceCategoryViewSet, basename="category")
+router.register("services", ServiceViewSet, basename="service")
+router.register("workplaces", WorkplaceViewSet, basename="workplace")
+
+urlpatterns = router.urls
