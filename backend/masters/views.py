@@ -26,7 +26,7 @@ class MasterViewSet(viewsets.ModelViewSet):
     )
 
     def get_queryset(self):
-        active_services = Service.objects.filter(is_active=True)
+        active_master_services  = MasterService.objects.filter(is_active=True)
 
         queryset = (
             Master.objects
@@ -34,7 +34,7 @@ class MasterViewSet(viewsets.ModelViewSet):
             .prefetch_related(
                 Prefetch(
                     "master_services",
-                    queryset=MasterService.objects.select_related("service"),
+                    queryset=active_master_services,
                 )
             )
         )
