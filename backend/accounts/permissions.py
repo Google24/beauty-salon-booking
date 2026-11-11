@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class IsAdmin(BasePermission):
@@ -15,3 +15,13 @@ class IsAdmin(BasePermission):
                 or user.is_superuser
             )
         )
+
+
+class IsAdminOrReadOnly(BasePermission):
+    message = "Изменять данные может только администратор."
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+
+        return IsAdmin().has_permission(request, view)
