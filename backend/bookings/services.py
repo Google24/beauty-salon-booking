@@ -1,17 +1,14 @@
 from datetime import date, datetime, timedelta
 from decimal import Decimal
-
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
-
 from catalog.models import Service, Workplace
 from masters.models import Master, MasterAbsence, MasterService, WorkSchedule
-
 from .models import Booking, BookingHistory, BookingService
-
+from .exceptions import BookingConflictError
 
 ACTIVE_BOOKING_STATUSES = (
     Booking.Status.NEW,
@@ -201,9 +198,7 @@ def create_booking(
         start_at=start_at,
         end_at=end_at,
     ):
-        raise ValidationError(
-            "Мастер или рабочее место уже заняты в выбранное время."
-        )
+        raise BookingConflictError()
 
     booking = Booking.objects.create(
         client=client,
