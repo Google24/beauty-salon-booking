@@ -26,7 +26,11 @@ class MasterViewSet(viewsets.ModelViewSet):
     )
 
     def get_queryset(self):
-        active_master_services  = MasterService.objects.filter(is_active=True)
+        active_master_services  =  (
+            MasterService.objects
+            .select_related("service")
+            .filter(service__is_active=True)
+        )
 
         queryset = (
             Master.objects
