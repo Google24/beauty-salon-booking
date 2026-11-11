@@ -8,7 +8,7 @@ from .views import (
 
 router = DefaultRouter()
 
-router.register("masters", MasterViewSet, basename="master")
+router.register("", MasterViewSet, basename="master")
 router.register(
     "master-services",
     MasterServiceViewSet,
