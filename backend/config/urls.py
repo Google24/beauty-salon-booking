@@ -12,4 +12,5 @@ urlpatterns = [
     path('api/health/', health_endpoint),
     path("api/auth/", include("accounts.urls")),
     path("api/catalog/", include("catalog.urls")),
+    path("api/masters/", include("masters.urls")),
 ]
