@@ -26,6 +26,28 @@ def make_datetime(day, current_time):
     return value
 
 
+def validate_workplace_for_services(workplace, services):
+    incompatible_services = [
+        service.name
+        for service in services
+        if (
+            service.required_workplace_type != "any"
+            and service.required_workplace_type
+            != workplace.workplace_type
+        )
+    ]
+
+    if incompatible_services:
+        raise ValidationError(
+            {
+                "workplace": (
+                    "Рабочее место не подходит для услуг: "
+                    + ", ".join(incompatible_services)
+                )
+            }
+        )
+
+
 def calculate_services(master, services):
     service_ids = [service.id for service in services]
 
@@ -87,6 +109,10 @@ def validate_master_schedule(master, start_at, end_at):
         else end_at
     )
 
+    if local_start.date() != local_end.date():
+        raise ValidationError(
+            "Запись не может переходить на следующий день."
+        )
     absence_exists = MasterAbsence.objects.filter(
         master=master,
         start_date__lte=local_start.date(),
@@ -179,11 +205,20 @@ def create_booking(
         raise ValidationError(
             {"workplace": "Рабочее место сейчас недоступно."}
         )
-
+    
+    if start_at <= timezone.now():
+        raise ValidationError(
+            {"start_at": "Нельзя создать запись в прошлом."}
+        )
+    
     total_duration, total_price, master_services = (
         calculate_services(master, services)
     )
 
+    validate_workplace_for_services(
+        workplace=workplace,
+        services=services,
+    )
     end_at = start_at + timedelta(minutes=total_duration)
 
     validate_master_schedule(
@@ -293,7 +328,18 @@ def get_available_slots(*, master_id, service_ids, selected_date):
         Workplace.objects.filter(is_active=True)
     )
 
-    if not active_workplaces:
+    compatible_workplaces = [
+        workplace
+        for workplace in active_workplaces
+        if all(
+            service.required_workplace_type == "any"
+            or service.required_workplace_type
+            == workplace.workplace_type
+            for service in services
+        )
+    ]
+
+    if not compatible_workplaces:
         return []
 
     shift_start = make_datetime(
@@ -332,7 +378,7 @@ def get_available_slots(*, master_id, service_ids, selected_date):
             free_workplace = next(
                 (
                     workplace
-                    for workplace in active_workplaces
+                    for workplace in compatible_workplaces
                     if not any(
                         booking.workplace_id == workplace.id
                         and booking.start_at < slot_end
