@@ -57,6 +57,8 @@ class MasterServiceShortSerializer(serializers.ModelSerializer):
             "name",
             "price",
             "duration_min",
+            "price_override",
+            "duration_override",
         )
 
 
