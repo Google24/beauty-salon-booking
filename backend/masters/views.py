@@ -33,8 +33,8 @@ class MasterViewSet(viewsets.ModelViewSet):
             .select_related("user")
             .prefetch_related(
                 Prefetch(
-                    "services",
-                    queryset=active_services,
+                    "master_services",
+                    queryset=MasterService.objects.select_related("service"),
                 )
             )
         )
