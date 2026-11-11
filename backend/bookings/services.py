@@ -402,3 +402,39 @@ def get_available_slots(*, master_id, service_ids, selected_date):
         current += step
 
     return slots
+
+
+ALLOWED_STATUS_TRANSITIONS = {
+    Booking.Status.NEW: {
+        Booking.Status.CONFIRMED,
+        Booking.Status.CANCELLED,
+    },
+    Booking.Status.CONFIRMED: {
+        Booking.Status.IN_PROGRESS,
+        Booking.Status.CANCELLED,
+        Booking.Status.NO_SHOW,
+    },
+    Booking.Status.IN_PROGRESS: {
+        Booking.Status.DONE,
+    },
+    Booking.Status.DONE: set(),
+    Booking.Status.CANCELLED: set(),
+    Booking.Status.NO_SHOW: set(),
+}
+
+
+def validate_status_transition(old_status, new_status):
+    allowed_statuses = ALLOWED_STATUS_TRANSITIONS.get(
+        old_status,
+        set(),
+    )
+
+    if new_status not in allowed_statuses:
+        raise ValidationError(
+            {
+                "status": (
+                    f"Нельзя изменить статус "
+                    f"с «{old_status}» на «{new_status}»."
+                )
+            }
+        )
