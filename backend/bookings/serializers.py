@@ -1,9 +1,5 @@
 from rest_framework import serializers
-
 from catalog.models import Service
-from masters.models import Master
-from catalog.models import Workplace
-
 from .models import Booking, BookingHistory,BookingService
 from .services import create_booking
 
