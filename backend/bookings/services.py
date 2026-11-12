@@ -284,6 +284,10 @@ def create_booking(
 
 
 def get_available_slots(*, master_id, service_ids, selected_date):
+    if selected_date < timezone.localdate():
+        return []
+    if selected_date > timezone.localdate() + timedelta(days=90):
+        return []
     try:
         master = Master.objects.get(pk=master_id)
     except Master.DoesNotExist:
