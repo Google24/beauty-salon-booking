@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from datetime import date
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -7,9 +6,15 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    extend_schema,
+    extend_schema_view,
+)
 from accounts.permissions import IsAdmin
 from .models import Booking, BookingHistory, BookingService
 from .serializers import (
+    AvailableSlotSerializer,
     BookingHistorySerializer,
     BookingSerializer,
     BookingStatusSerializer,
@@ -17,9 +22,35 @@ from .serializers import (
 from .services import (get_available_slots,
     validate_status_transition,
 )
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 
 class AvailableSlotsView(APIView):
     permission_classes = (permissions.AllowAny,)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="master",
+                type=int,
+                required=True,
+                description="ID мастера",
+            ),
+            OpenApiParameter(
+                name="service",
+                type=int,
+                required=True,
+                many=True,
+                description="ID услуги. Можно передать несколько раз.",
+            ),
+            OpenApiParameter(
+                name="date",
+                type=str,
+                required=True,
+                description="Дата в формате YYYY-MM-DD",
+            ),
+        ],
+        responses=AvailableSlotSerializer(many=True),
+    )
 
     def get(self, request):
         master_id = request.query_params.get("master")
@@ -63,6 +94,17 @@ class AvailableSlotsView(APIView):
         return Response(slots)
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="pk",
+                type=int,
+                location=OpenApiParameter.PATH,
+            ),
+        ],
+    ),
+)
 class BookingViewSet(viewsets.ModelViewSet):
     serializer_class = BookingSerializer
     permission_classes = (permissions.IsAuthenticated,)

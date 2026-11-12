@@ -1,8 +1,8 @@
-from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -41,7 +41,10 @@ class MeView(generics.RetrieveUpdateAPIView):
 
 class ChangePasswordView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
-
+    @extend_schema(
+    request=ChangePasswordSerializer,
+    responses={200: dict},
+    )
     def post(self, request):
         serializer = ChangePasswordSerializer(
             data=request.data,
