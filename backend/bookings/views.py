@@ -189,6 +189,12 @@ class BookingViewSet(viewsets.ModelViewSet):
                 raise PermissionDenied(
                     "Можно отменить только свою запись."
                 )
+            
+            if booking.status == Booking.Status.IN_PROGRESS:
+                return Response(
+                    {"detail": "Нельзя отменить запись, которая уже началась."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             if booking.status in (
                 Booking.Status.DONE,
