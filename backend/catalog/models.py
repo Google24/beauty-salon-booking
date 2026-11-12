@@ -22,6 +22,11 @@ class ServiceCategory(models.Model):
 
 
 class Service(models.Model):
+    class WorkplaceRequirement(models.TextChoices):
+        ANY = "any", "Любое рабочее место"
+        MANICURE_TABLE = "manicure_table", "Маникюрный стол"
+        PEDICURE_CHAIR = "pedicure_chair", "Педикюрное кресло"
+
     name = models.CharField(
         max_length=100,
         unique=True,
@@ -56,10 +61,17 @@ class Service(models.Model):
         default=True,
         verbose_name="Активна",
     )
+    required_workplace_type = models.CharField(
+        max_length=30,
+        choices=WorkplaceRequirement.choices,
+        default=WorkplaceRequirement.ANY,
+        verbose_name="Требуемое рабочее место",
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата создания",
     )
+    
 
     class Meta:
         verbose_name = "Услуга"

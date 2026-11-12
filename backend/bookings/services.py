@@ -1,17 +1,14 @@
 from datetime import date, datetime, timedelta
 from decimal import Decimal
-
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
-
 from catalog.models import Service, Workplace
 from masters.models import Master, MasterAbsence, MasterService, WorkSchedule
-
 from .models import Booking, BookingHistory, BookingService
-
+from .exceptions import BookingConflictError
 
 ACTIVE_BOOKING_STATUSES = (
     Booking.Status.NEW,
@@ -27,6 +24,28 @@ def make_datetime(day, current_time):
         return timezone.make_aware(value)
 
     return value
+
+
+def validate_workplace_for_services(workplace, services):
+    incompatible_services = [
+        service.name
+        for service in services
+        if (
+            service.required_workplace_type != "any"
+            and service.required_workplace_type
+            != workplace.workplace_type
+        )
+    ]
+
+    if incompatible_services:
+        raise ValidationError(
+            {
+                "workplace": (
+                    "Рабочее место не подходит для услуг: "
+                    + ", ".join(incompatible_services)
+                )
+            }
+        )
 
 
 def calculate_services(master, services):
@@ -90,6 +109,10 @@ def validate_master_schedule(master, start_at, end_at):
         else end_at
     )
 
+    if local_start.date() != local_end.date():
+        raise ValidationError(
+            "Запись не может переходить на следующий день."
+        )
     absence_exists = MasterAbsence.objects.filter(
         master=master,
         start_date__lte=local_start.date(),
@@ -182,11 +205,20 @@ def create_booking(
         raise ValidationError(
             {"workplace": "Рабочее место сейчас недоступно."}
         )
-
+    
+    if start_at <= timezone.now():
+        raise ValidationError(
+            {"start_at": "Нельзя создать запись в прошлом."}
+        )
+    
     total_duration, total_price, master_services = (
         calculate_services(master, services)
     )
 
+    validate_workplace_for_services(
+        workplace=workplace,
+        services=services,
+    )
     end_at = start_at + timedelta(minutes=total_duration)
 
     validate_master_schedule(
@@ -201,9 +233,7 @@ def create_booking(
         start_at=start_at,
         end_at=end_at,
     ):
-        raise ValidationError(
-            "Мастер или рабочее место уже заняты в выбранное время."
-        )
+        raise BookingConflictError()
 
     booking = Booking.objects.create(
         client=client,
@@ -254,6 +284,10 @@ def create_booking(
 
 
 def get_available_slots(*, master_id, service_ids, selected_date):
+    if selected_date < timezone.localdate():
+        return []
+    if selected_date > timezone.localdate() + timedelta(days=90):
+        return []
     try:
         master = Master.objects.get(pk=master_id)
     except Master.DoesNotExist:
@@ -298,7 +332,18 @@ def get_available_slots(*, master_id, service_ids, selected_date):
         Workplace.objects.filter(is_active=True)
     )
 
-    if not active_workplaces:
+    compatible_workplaces = [
+        workplace
+        for workplace in active_workplaces
+        if all(
+            service.required_workplace_type == "any"
+            or service.required_workplace_type
+            == workplace.workplace_type
+            for service in services
+        )
+    ]
+
+    if not compatible_workplaces:
         return []
 
     shift_start = make_datetime(
@@ -337,7 +382,7 @@ def get_available_slots(*, master_id, service_ids, selected_date):
             free_workplace = next(
                 (
                     workplace
-                    for workplace in active_workplaces
+                    for workplace in compatible_workplaces
                     if not any(
                         booking.workplace_id == workplace.id
                         and booking.start_at < slot_end
@@ -361,3 +406,39 @@ def get_available_slots(*, master_id, service_ids, selected_date):
         current += step
 
     return slots
+
+
+ALLOWED_STATUS_TRANSITIONS = {
+    Booking.Status.NEW: {
+        Booking.Status.CONFIRMED,
+        Booking.Status.CANCELLED,
+    },
+    Booking.Status.CONFIRMED: {
+        Booking.Status.IN_PROGRESS,
+        Booking.Status.CANCELLED,
+        Booking.Status.NO_SHOW,
+    },
+    Booking.Status.IN_PROGRESS: {
+        Booking.Status.DONE,
+    },
+    Booking.Status.DONE: set(),
+    Booking.Status.CANCELLED: set(),
+    Booking.Status.NO_SHOW: set(),
+}
+
+
+def validate_status_transition(old_status, new_status):
+    allowed_statuses = ALLOWED_STATUS_TRANSITIONS.get(
+        old_status,
+        set(),
+    )
+
+    if new_status not in allowed_statuses:
+        raise ValidationError(
+            {
+                "status": (
+                    f"Нельзя изменить статус "
+                    f"с «{old_status}» на «{new_status}»."
+                )
+            }
+        )

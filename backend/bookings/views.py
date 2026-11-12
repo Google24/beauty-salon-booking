@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from datetime import date
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -7,18 +6,51 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    extend_schema,
+    extend_schema_view,
+)
 from accounts.permissions import IsAdmin
 from .models import Booking, BookingHistory, BookingService
 from .serializers import (
+    AvailableSlotSerializer,
     BookingHistorySerializer,
     BookingSerializer,
     BookingStatusSerializer,
 )
-from .services import get_available_slots
-
+from .services import (get_available_slots,
+    validate_status_transition,
+)
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 
 class AvailableSlotsView(APIView):
     permission_classes = (permissions.AllowAny,)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="master",
+                type=int,
+                required=True,
+                description="ID мастера",
+            ),
+            OpenApiParameter(
+                name="service",
+                type=int,
+                required=True,
+                many=True,
+                description="ID услуги. Можно передать несколько раз.",
+            ),
+            OpenApiParameter(
+                name="date",
+                type=str,
+                required=True,
+                description="Дата в формате YYYY-MM-DD",
+            ),
+        ],
+        responses=AvailableSlotSerializer(many=True),
+    )
 
     def get(self, request):
         master_id = request.query_params.get("master")
@@ -62,6 +94,17 @@ class AvailableSlotsView(APIView):
         return Response(slots)
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="pk",
+                type=int,
+                location=OpenApiParameter.PATH,
+            ),
+        ],
+    ),
+)
 class BookingViewSet(viewsets.ModelViewSet):
     serializer_class = BookingSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -89,8 +132,6 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in (
-            "update",
-            "partial_update",
             "destroy",
             "set_status",
         ):
@@ -98,7 +139,34 @@ class BookingViewSet(viewsets.ModelViewSet):
 
         return [permissions.IsAuthenticated()]
 
+    def update(self, request, *args, **kwargs):
+        return Response(
+            {
+                "detail": (
+                    "Изменение записи через этот endpoint запрещено. "
+                    "Используйте отмену или смену статуса."
+                )
+            },
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        return Response(
+            {
+                "detail": (
+                    "Изменение записи через этот endpoint запрещено. "
+                    "Используйте отмену или смену статуса."
+                )
+            },
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+        
     def perform_create(self, serializer):
+        if self.request.user.role != "client":
+            raise PermissionDenied(
+                "Создавать записи может только клиент."
+        )
+
         serializer.save()
 
     @action(
@@ -107,31 +175,37 @@ class BookingViewSet(viewsets.ModelViewSet):
         url_path="cancel",
     )
     def cancel(self, request, pk=None):
-        booking = get_object_or_404(
-            Booking.objects.select_for_update(),
-            pk=pk,
-        )
-
-        if (
-            request.user.role != "admin"
-            and not request.user.is_superuser
-            and booking.client_id != request.user.id
-        ):
-            raise PermissionDenied(
-                "Можно отменить только свою запись."
-            )
-
-        if booking.status in (
-            Booking.Status.DONE,
-            Booking.Status.CANCELLED,
-            Booking.Status.NO_SHOW,
-        ):
-            return Response(
-                {"detail": "Эту запись уже нельзя отменить."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         with transaction.atomic():
+            booking = get_object_or_404(
+                Booking.objects.select_for_update(),
+                pk=pk,
+            )
+
+            if (
+                request.user.role != "admin"
+                and not request.user.is_superuser
+                and booking.client_id != request.user.id
+            ):
+                raise PermissionDenied(
+                    "Можно отменить только свою запись."
+                )
+            
+            if booking.status == Booking.Status.IN_PROGRESS:
+                return Response(
+                    {"detail": "Нельзя отменить запись, которая уже началась."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if booking.status in (
+                Booking.Status.DONE,
+                Booking.Status.CANCELLED,
+                Booking.Status.NO_SHOW,
+            ):
+                return Response(
+                    {"detail": "Эту запись уже нельзя отменить."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             old_status = booking.status
             booking.status = Booking.Status.CANCELLED
             booking.save(update_fields=("status",))
@@ -160,24 +234,22 @@ class BookingViewSet(viewsets.ModelViewSet):
                 "Изменять статус может только администратор."
             )
 
-        booking = get_object_or_404(
-            Booking.objects.select_for_update(),
-            pk=pk,
-        )
-
         serializer = BookingStatusSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         new_status = serializer.validated_data["status"]
         comment = serializer.validated_data["comment"]
-
-        if booking.status == new_status:
-            return Response(
-                {"detail": "Запись уже имеет этот статус."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
+        
         with transaction.atomic():
+            booking = get_object_or_404(
+                Booking.objects.select_for_update(),
+                pk=pk,
+            )
+            validate_status_transition(
+                booking.status,
+                new_status,
+            )
+        
             old_status = booking.status
             booking.status = new_status
             booking.save(update_fields=("status",))

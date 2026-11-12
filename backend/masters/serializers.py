@@ -37,8 +37,8 @@ class MasterServiceSerializer(serializers.ModelSerializer):
 
 
 class MasterServiceShortSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source="service.id", read_only=True)
-    name = serializers.CharField(source="service.name", read_only=True)
+    service_id  = serializers.IntegerField(source="service.id", read_only=True)
+    service_name  = serializers.CharField(source="service.name", read_only=True)
     price = serializers.DecimalField(
         source="service.price",
         max_digits=10,
@@ -51,10 +51,10 @@ class MasterServiceShortSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Service
+        model = MasterService
         fields = (
-            "id",
-            "name",
+            "service_id",
+            "service_name",
             "price",
             "duration_min",
             "price_override",
@@ -64,6 +64,7 @@ class MasterServiceShortSerializer(serializers.ModelSerializer):
 
 class MasterSerializer(serializers.ModelSerializer):
     services = MasterServiceShortSerializer(
+        source="master_services",
         many=True,
         read_only=True,
     )
