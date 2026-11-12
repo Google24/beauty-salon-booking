@@ -1,25 +1,27 @@
+import { NavLink } from 'react-router-dom'
+
 function Layout({ children }) {
   return (
     <div className="flex min-h-screen flex-col text-[var(--color-ink)]">
       <header className="border-b border-[var(--color-sand)]/80 bg-[var(--color-white)]/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-5 py-5 sm:px-8">
-          <a
-            href="/"
+          <NavLink
+            to="/"
             className="shrink-0 text-lg font-semibold tracking-[0.18em] text-[var(--color-plum)] uppercase"
           >
             Atelier beauté
-          </a>
+          </NavLink>
 
           <nav
             aria-label="Основная навигация"
             className="hidden items-center gap-7 text-sm text-[var(--color-muted)] md:flex"
           >
-            <a
-              href="/services"
+            <NavLink
+              to="/services"
               className="transition-colors hover:text-[var(--color-plum)]"
             >
               Каталог услуг
-            </a>
+            </NavLink>
             <a
               href="/bookings"
               className="transition-colors hover:text-[var(--color-plum)]"
@@ -40,9 +42,9 @@ function Layout({ children }) {
           aria-label="Мобильная навигация"
           className="mx-auto flex max-w-6xl gap-5 overflow-x-auto px-5 pb-4 text-sm text-[var(--color-muted)] md:hidden sm:px-8"
         >
-          <a href="/services" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+          <NavLink to="/services" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Каталог услуг
-          </a>
+          </NavLink>
           <a href="/bookings" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Мои записи
           </a>
