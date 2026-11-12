@@ -3,6 +3,11 @@ from catalog.models import Service
 from .models import Booking, BookingHistory,BookingService
 from .services import create_booking
 
+class AvailableSlotSerializer(serializers.Serializer):
+    start_at = serializers.DateTimeField()
+    end_at = serializers.DateTimeField()
+    workplace_id = serializers.IntegerField()
+    workplace_name = serializers.CharField()
 
 class BookingServiceReadSerializer(serializers.ModelSerializer):
     service_id = serializers.IntegerField(
