@@ -132,8 +132,6 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in (
-            "update",
-            "partial_update",
             "destroy",
             "set_status",
         ):
@@ -141,6 +139,28 @@ class BookingViewSet(viewsets.ModelViewSet):
 
         return [permissions.IsAuthenticated()]
 
+    def update(self, request, *args, **kwargs):
+        return Response(
+            {
+                "detail": (
+                    "Изменение записи через этот endpoint запрещено. "
+                    "Используйте отмену или смену статуса."
+                )
+            },
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        return Response(
+            {
+                "detail": (
+                    "Изменение записи через этот endpoint запрещено. "
+                    "Используйте отмену или смену статуса."
+                )
+            },
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+        
     def perform_create(self, serializer):
         if self.request.user.role != "client":
             raise PermissionDenied(
