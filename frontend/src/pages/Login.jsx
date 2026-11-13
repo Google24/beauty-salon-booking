@@ -1,3 +1,5 @@
+import { NavLink } from 'react-router-dom'
+
 function Login() {
   function handleSubmit(event) {
     event.preventDefault()
@@ -55,6 +57,13 @@ function Login() {
           Войти
         </button>
       </form>
+
+      <p className="mt-5 text-center text-sm text-[var(--color-muted)]">
+        Нет аккаунта?{' '}
+        <NavLink to="/register" className="font-medium text-[var(--color-plum)] hover:text-[var(--color-gold)]">
+          Зарегистрироваться
+        </NavLink>
+      </p>
     </section>
   )
 }
