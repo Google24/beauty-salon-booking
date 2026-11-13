@@ -30,12 +30,12 @@ function Layout({ children }) {
             </a>
           </nav>
 
-          <a
-            href="/login"
+          <NavLink
+            to="/login"
             className="rounded-full border border-[var(--color-plum)] px-4 py-2 text-sm font-medium text-[var(--color-plum)] transition-colors hover:bg-[var(--color-plum)] hover:text-[var(--color-white)]"
           >
             Войти
-          </a>
+          </NavLink>
         </div>
 
         <nav
