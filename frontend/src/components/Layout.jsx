@@ -22,12 +22,12 @@ function Layout({ children }) {
             >
               Каталог услуг
             </NavLink>
-            <a
-              href="/bookings"
+            <NavLink
+              to="/profile"
               className="transition-colors hover:text-[var(--color-plum)]"
             >
               Мои записи
-            </a>
+            </NavLink>
           </nav>
 
           <NavLink
@@ -45,9 +45,9 @@ function Layout({ children }) {
           <NavLink to="/services" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Каталог услуг
           </NavLink>
-          <a href="/bookings" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+          <NavLink to="/profile" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Мои записи
-          </a>
+          </NavLink>
         </nav>
       </header>
 
