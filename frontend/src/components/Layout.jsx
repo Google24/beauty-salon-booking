@@ -27,6 +27,12 @@ function Layout({ children }) {
               Каталог услуг
             </NavLink>
             <NavLink
+              to="/booking"
+              className="transition-colors hover:text-[var(--color-plum)]"
+            >
+              Записаться
+            </NavLink>
+            <NavLink
               to="/profile"
               className="transition-colors hover:text-[var(--color-plum)]"
             >
@@ -63,6 +69,9 @@ function Layout({ children }) {
         >
           <NavLink to="/services" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Каталог услуг
+          </NavLink>
+          <NavLink to="/booking" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+            Записаться
           </NavLink>
           <NavLink to="/profile" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Мои записи
