@@ -1,6 +1,10 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext.jsx'
 
 function Layout({ children }) {
+  const { user, signOut } = useAuth()
+  const userLabel = user?.first_name || user?.email
+
   return (
     <div className="flex min-h-screen flex-col text-[var(--color-ink)]">
       <header className="border-b border-[var(--color-sand)]/80 bg-[var(--color-white)]/90 backdrop-blur">
@@ -23,6 +27,12 @@ function Layout({ children }) {
               Каталог услуг
             </NavLink>
             <NavLink
+              to="/booking"
+              className="transition-colors hover:text-[var(--color-plum)]"
+            >
+              Записаться
+            </NavLink>
+            <NavLink
               to="/profile"
               className="transition-colors hover:text-[var(--color-plum)]"
             >
@@ -30,12 +40,27 @@ function Layout({ children }) {
             </NavLink>
           </nav>
 
-          <NavLink
-            to="/login"
-            className="rounded-full border border-[var(--color-plum)] px-4 py-2 text-sm font-medium text-[var(--color-plum)] transition-colors hover:bg-[var(--color-plum)] hover:text-[var(--color-white)]"
-          >
-            Войти
-          </NavLink>
+          {user ? (
+            <div className="flex items-center gap-3">
+              <span className="hidden text-sm font-medium text-[var(--color-plum)] sm:inline">
+                {userLabel}
+              </span>
+              <button
+                type="button"
+                onClick={signOut}
+                className="rounded-full border border-[var(--color-plum)] px-4 py-2 text-sm font-medium text-[var(--color-plum)] transition-colors hover:bg-[var(--color-plum)] hover:text-[var(--color-white)]"
+              >
+                Выйти
+              </button>
+            </div>
+          ) : (
+            <NavLink
+              to="/login"
+              className="rounded-full border border-[var(--color-plum)] px-4 py-2 text-sm font-medium text-[var(--color-plum)] transition-colors hover:bg-[var(--color-plum)] hover:text-[var(--color-white)]"
+            >
+              Войти
+            </NavLink>
+          )}
         </div>
 
         <nav
@@ -44,6 +69,9 @@ function Layout({ children }) {
         >
           <NavLink to="/services" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Каталог услуг
+          </NavLink>
+          <NavLink to="/booking" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+            Записаться
           </NavLink>
           <NavLink to="/profile" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Мои записи

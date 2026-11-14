@@ -1,8 +1,28 @@
-import { NavLink } from 'react-router-dom'
+import { useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext.jsx'
 
 function Login() {
-  function handleSubmit(event) {
+  const navigate = useNavigate()
+  const { signIn } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  async function handleSubmit(event) {
     event.preventDefault()
+    setError('')
+    setIsSubmitting(true)
+
+    try {
+      await signIn(email, password)
+      navigate('/')
+    } catch {
+      setError('Неверный email или пароль')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -13,6 +33,12 @@ function Login() {
       <h1 className="text-3xl font-semibold text-[var(--color-plum-deep)]">
         Вход
       </h1>
+
+      {error && (
+        <p className="mt-5 rounded-xl bg-[#f8e4e5] px-4 py-3 text-sm text-[#8e3f4a]" role="alert">
+          {error}
+        </p>
+      )}
 
       <form
         onSubmit={handleSubmit}
@@ -29,6 +55,8 @@ function Login() {
             id="email"
             name="email"
             type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
             required
             className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
           />
@@ -45,6 +73,8 @@ function Login() {
             id="password"
             name="password"
             type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
             required
             className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
           />
@@ -52,9 +82,10 @@ function Login() {
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-[var(--color-plum)] px-4 py-3 font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)]"
+          disabled={isSubmitting}
+          className="w-full rounded-xl bg-[var(--color-plum)] px-4 py-3 font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Войти
+          {isSubmitting ? 'Выполняется вход...' : 'Войти'}
         </button>
       </form>
 
