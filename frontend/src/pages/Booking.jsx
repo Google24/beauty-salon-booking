@@ -1,17 +1,28 @@
 import { useState } from 'react'
-import { getSlots } from '../api/bookings'
+import { useNavigate } from 'react-router-dom'
+import { createBooking, getSlots } from '../api/bookings'
+import { useAuth } from '../context/AuthContext.jsx'
 
 function Booking() {
+  const navigate = useNavigate()
+  const { token } = useAuth()
   const [date, setDate] = useState('')
   const [slots, setSlots] = useState([])
+  const [selectedSlot, setSelectedSlot] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
+  const [bookingLoading, setBookingLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [bookingError, setBookingError] = useState('')
+  const [success, setSuccess] = useState('')
   const [showSlots, setShowSlots] = useState(false)
 
   async function handleSubmit(event) {
     event.preventDefault()
     setLoading(true)
-    setError(false)
+    setError('')
+    setBookingError('')
+    setSuccess('')
+    setSelectedSlot(null)
     setShowSlots(true)
 
     try {
@@ -20,9 +31,49 @@ function Booking() {
       setSlots(Array.isArray(data) ? data : data.results || [])
     } catch {
       setSlots([])
-      setError(true)
+      setError('Слоты не найдены или ошибка сервера')
     } finally {
       setLoading(false)
+    }
+  }
+
+  function handleSlotSelect(slot) {
+    setSelectedSlot(slot)
+    setBookingError('')
+    setSuccess('')
+  }
+
+  async function handleBookingConfirm() {
+    if (!selectedSlot || !token) {
+      setBookingError('Для создания записи необходимо войти в аккаунт.')
+      return
+    }
+
+    setBookingLoading(true)
+    setBookingError('')
+
+    try {
+      await createBooking(
+        {
+          master: 1,
+          service_ids: [1],
+          workplace: selectedSlot.workplace_id,
+          start_at: selectedSlot.start_at,
+          comment: '',
+        },
+        token,
+      )
+      setSuccess('Вы успешно записаны!')
+      window.setTimeout(() => navigate('/profile'), 800)
+    } catch (requestError) {
+      const responseData = requestError.data
+      const serverError =
+        responseData?.detail ||
+        Object.values(responseData || {})[0]?.[0] ||
+        'Не удалось создать запись. Попробуйте выбрать другое время.'
+      setBookingError(serverError)
+    } finally {
+      setBookingLoading(false)
     }
   }
 
@@ -71,7 +122,7 @@ function Booking() {
           </h2>
 
           {loading && <p className="mt-4 text-[var(--color-muted)]">Загрузка слотов...</p>}
-          {error && <p className="mt-4 text-[#8e3f4a]">Слоты не найдены или ошибка сервера</p>}
+          {error && <p className="mt-4 text-[#8e3f4a]">{error}</p>}
           {!loading && !error && slots.length === 0 && (
             <p className="mt-4 text-[var(--color-muted)]">Нет свободного времени на эту дату</p>
           )}
@@ -82,7 +133,12 @@ function Booking() {
                 <button
                   key={slot.start_at}
                   type="button"
-                  className="rounded-xl border border-[var(--color-plum)] bg-[var(--color-white)] px-5 py-3 font-medium text-[var(--color-plum)] transition hover:bg-[var(--color-plum)] hover:text-[var(--color-white)]"
+                  onClick={() => handleSlotSelect(slot)}
+                  className={`rounded-xl border px-5 py-3 font-medium transition ${
+                    selectedSlot?.start_at === slot.start_at
+                      ? 'border-[var(--color-gold)] bg-[var(--color-plum)] text-[var(--color-white)]'
+                      : 'border-[var(--color-plum)] bg-[var(--color-white)] text-[var(--color-plum)] hover:bg-[var(--color-plum)] hover:text-[var(--color-white)]'
+                  }`}
                 >
                   {new Date(slot.start_at).toLocaleTimeString('ru-RU', {
                     hour: '2-digit',
@@ -92,6 +148,31 @@ function Booking() {
               ))}
             </div>
           )}
+
+          {selectedSlot && (
+            <div className="mt-6 rounded-2xl bg-[var(--color-white)] p-5 ring-1 ring-[var(--color-sand)]/70">
+              <p className="text-sm text-[var(--color-muted)]">
+                Выбрано время:{' '}
+                <span className="font-semibold text-[var(--color-plum)]">
+                  {new Date(selectedSlot.start_at).toLocaleTimeString('ru-RU', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+              </p>
+              <button
+                type="button"
+                onClick={handleBookingConfirm}
+                disabled={bookingLoading}
+                className="mt-4 rounded-xl bg-[var(--color-gold)] px-5 py-3 font-medium text-[var(--color-plum-deep)] transition hover:bg-[var(--color-blush)] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {bookingLoading ? 'Подтверждение...' : 'Подтвердить запись'}
+              </button>
+            </div>
+          )}
+
+          {success && <p className="mt-4 text-[#3f7659]">{success}</p>}
+          {bookingError && <p className="mt-4 text-[#8e3f4a]">{bookingError}</p>}
         </div>
       )}
     </section>

@@ -9,3 +9,11 @@ export function getSlots(masterId, serviceId, date) {
 
   return apiRequest(`/bookings/slots/?${params.toString()}`)
 }
+
+export function createBooking(data, token) {
+  return apiRequest('/bookings/bookings/', {
+    method: 'POST',
+    token,
+    body: JSON.stringify(data),
+  })
+}
