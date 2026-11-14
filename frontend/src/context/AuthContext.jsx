@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { login } from '../api/auth'
+import { getMe, login } from '../api/auth'
 
 const AuthContext = createContext(null)
 
@@ -10,7 +10,17 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!token) {
       setUser(null)
+      return
     }
+
+    getMe(token)
+      .then(setUser)
+      .catch(() => {
+        localStorage.removeItem('access')
+        localStorage.removeItem('refresh')
+        setToken(null)
+        setUser(null)
+      })
   }, [token])
 
   async function signIn(email, password) {
@@ -19,7 +29,9 @@ export function AuthProvider({ children }) {
     localStorage.setItem('access', tokens.access)
     localStorage.setItem('refresh', tokens.refresh)
     setToken(tokens.access)
-    setUser(null)
+
+    const currentUser = await getMe(tokens.access)
+    setUser(currentUser)
   }
 
   function signOut() {

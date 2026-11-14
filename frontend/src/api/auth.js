@@ -6,3 +6,7 @@ export function login(email, password) {
     body: JSON.stringify({ email, password }),
   })
 }
+
+export function getMe(token) {
+  return apiRequest('/auth/me/', { token })
+}
