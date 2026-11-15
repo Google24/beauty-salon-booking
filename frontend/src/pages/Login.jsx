@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { signIn } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -33,6 +34,12 @@ function Login() {
       <h1 className="text-3xl font-semibold text-[var(--color-plum-deep)]">
         Вход
       </h1>
+
+      {location.state?.message && (
+        <p className="mt-5 rounded-xl bg-[#e5f2e9] px-4 py-3 text-sm text-[#3f7659]" role="status">
+          {location.state.message}
+        </p>
+      )}
 
       {error && (
         <p className="mt-5 rounded-xl bg-[#f8e4e5] px-4 py-3 text-sm text-[#8e3f4a]" role="alert">
