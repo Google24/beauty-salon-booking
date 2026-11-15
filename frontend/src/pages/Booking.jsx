@@ -2,15 +2,20 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createBooking, getSlots } from '../api/bookings'
 import { getMasters } from '../api/masters'
+import { getServices } from '../api/services'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function Booking() {
   const navigate = useNavigate()
   const { token } = useAuth()
   const [masters, setMasters] = useState([])
+  const [services, setServices] = useState([])
   const [selectedMasterId, setSelectedMasterId] = useState('')
+  const [selectedServiceId, setSelectedServiceId] = useState('')
   const [mastersLoading, setMastersLoading] = useState(true)
+  const [servicesLoading, setServicesLoading] = useState(true)
   const [mastersError, setMastersError] = useState(false)
+  const [servicesError, setServicesError] = useState(false)
   const [date, setDate] = useState('')
   const [slots, setSlots] = useState([])
   const [selectedSlot, setSelectedSlot] = useState(null)
@@ -43,7 +48,26 @@ function Booking() {
       }
     }
 
+    async function loadServices() {
+      try {
+        const data = await getServices()
+
+        if (isMounted) {
+          setServices(data)
+        }
+      } catch {
+        if (isMounted) {
+          setServicesError(true)
+        }
+      } finally {
+        if (isMounted) {
+          setServicesLoading(false)
+        }
+      }
+    }
+
     loadMasters()
+    loadServices()
 
     return () => {
       isMounted = false
@@ -53,8 +77,8 @@ function Booking() {
   async function handleSubmit(event) {
     event.preventDefault()
 
-    if (!selectedMasterId) {
-      setError('Сначала выберите мастера')
+    if (!selectedMasterId || !selectedServiceId) {
+      setError('Сначала выберите мастера и услугу')
       return
     }
 
@@ -66,8 +90,11 @@ function Booking() {
     setShowSlots(true)
 
     try {
-      // Услуга пока временно фиксирована: выбор услуги добавим следующим шагом.
-      const data = await getSlots(Number(selectedMasterId), 1, date)
+      const data = await getSlots(
+        Number(selectedMasterId),
+        Number(selectedServiceId),
+        date,
+      )
       setSlots(Array.isArray(data) ? data : data.results || [])
     } catch {
       setSlots([])
@@ -79,6 +106,14 @@ function Booking() {
 
   function handleMasterChange(event) {
     setSelectedMasterId(event.target.value)
+    setSlots([])
+    setSelectedSlot(null)
+    setShowSlots(false)
+    setError('')
+  }
+
+  function handleServiceChange(event) {
+    setSelectedServiceId(event.target.value)
     setSlots([])
     setSelectedSlot(null)
     setShowSlots(false)
@@ -104,7 +139,7 @@ function Booking() {
       await createBooking(
         {
           master: Number(selectedMasterId),
-          service_ids: [1],
+          service_ids: [Number(selectedServiceId)],
           workplace: selectedSlot.workplace_id,
           start_at: selectedSlot.start_at,
           comment: '',
@@ -124,6 +159,13 @@ function Booking() {
       setBookingLoading(false)
     }
   }
+
+  const canSearchSlots =
+    !loading &&
+    !mastersLoading &&
+    !servicesLoading &&
+    Boolean(selectedMasterId) &&
+    Boolean(selectedServiceId)
 
   return (
     <section className="mx-auto w-full max-w-2xl">
@@ -166,6 +208,33 @@ function Booking() {
         )}
 
         <label
+          htmlFor="booking-service"
+          className="mb-2 block text-sm font-medium text-[var(--color-plum)]"
+        >
+          Услуга
+        </label>
+        {servicesLoading && <p className="mb-4 text-sm text-[var(--color-muted)]">Загрузка услуг...</p>}
+        {servicesError && <p className="mb-4 text-sm text-[#8e3f4a]">Не удалось загрузить услуги</p>}
+        {!servicesLoading && !servicesError && services.length === 0 && (
+          <p className="mb-4 text-sm text-[var(--color-muted)]">Услуги не найдены</p>
+        )}
+        {!servicesLoading && !servicesError && services.length > 0 && (
+          <select
+            id="booking-service"
+            value={selectedServiceId}
+            onChange={handleServiceChange}
+            className="mb-5 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
+          >
+            <option value="">Выберите услугу</option>
+            {services.map((service) => (
+              <option key={service.id} value={service.id}>
+                {service.name || service.title || `Услуга #${service.id}`}
+              </option>
+            ))}
+          </select>
+        )}
+
+        <label
           htmlFor="booking-date"
           className="mb-2 block text-sm font-medium text-[var(--color-plum)]"
         >
@@ -182,14 +251,16 @@ function Booking() {
           />
           <button
             type="submit"
-            disabled={loading || mastersLoading || !selectedMasterId}
+            disabled={!canSearchSlots}
             className="shrink-0 rounded-xl bg-[var(--color-plum)] px-5 py-3 font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Показать свободное время
           </button>
         </div>
-        {!selectedMasterId && !mastersLoading && masters.length > 0 && (
-          <p className="mt-3 text-sm text-[var(--color-muted)]">Сначала выберите мастера</p>
+        {(!selectedMasterId || !selectedServiceId) && !mastersLoading && !servicesLoading && (
+          <p className="mt-3 text-sm text-[var(--color-muted)]">
+            Сначала выберите мастера и услугу
+          </p>
         )}
       </form>
 
