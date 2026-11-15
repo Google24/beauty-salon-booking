@@ -9,6 +9,7 @@ import MyBookings from './pages/MyBookings'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
 import Services from './pages/Services'
+import ProtectedRoute from './routes/ProtectedRoute'
 
 function App() {
   return (
@@ -18,11 +19,13 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />
           <Route path="/masters" element={<Masters />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
-          <Route path="/booking" element={<Booking />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/profile" element={<Profile />} />
           <Route path="/register" element={<Register />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/booking" element={<Booking />} />
+            <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
         </Routes>
       </Layout>
     </BrowserRouter>
