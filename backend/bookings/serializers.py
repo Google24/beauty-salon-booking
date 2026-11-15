@@ -91,10 +91,14 @@ class BookingSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         services = validated_data.pop("service_ids")
+        master = validated_data.pop("master")
+        workplace = validated_data.pop("workplace")
         client = self.context["request"].user
 
         return create_booking(
             client=client,
+            master_id=master.id,
+            workplace_id=workplace.id,
             services=services,
             **validated_data,
         )
