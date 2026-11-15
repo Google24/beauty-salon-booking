@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import Booking from './pages/Booking'
 import Home from './pages/Home'
 import Login from './pages/Login'
+import Masters from './pages/Masters'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
 import Services from './pages/Services'
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/masters" element={<Masters />} />
           <Route path="/booking" element={<Booking />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
