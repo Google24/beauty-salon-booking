@@ -17,3 +17,7 @@ export function createBooking(data, token) {
     body: JSON.stringify(data),
   })
 }
+
+export function getMyBookings(token) {
+  return apiRequest('/bookings/bookings/', { token })
+}
