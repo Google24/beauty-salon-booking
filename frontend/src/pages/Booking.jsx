@@ -1,11 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createBooking, getSlots } from '../api/bookings'
+import { getMasters } from '../api/masters'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function Booking() {
   const navigate = useNavigate()
   const { token } = useAuth()
+  const [masters, setMasters] = useState([])
+  const [selectedMasterId, setSelectedMasterId] = useState('')
+  const [mastersLoading, setMastersLoading] = useState(true)
+  const [mastersError, setMastersError] = useState(false)
   const [date, setDate] = useState('')
   const [slots, setSlots] = useState([])
   const [selectedSlot, setSelectedSlot] = useState(null)
@@ -16,8 +21,43 @@ function Booking() {
   const [success, setSuccess] = useState('')
   const [showSlots, setShowSlots] = useState(false)
 
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadMasters() {
+      try {
+        const data = await getMasters()
+        const masterList = Array.isArray(data) ? data : data.results || []
+
+        if (isMounted) {
+          setMasters(masterList)
+        }
+      } catch {
+        if (isMounted) {
+          setMastersError(true)
+        }
+      } finally {
+        if (isMounted) {
+          setMastersLoading(false)
+        }
+      }
+    }
+
+    loadMasters()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   async function handleSubmit(event) {
     event.preventDefault()
+
+    if (!selectedMasterId) {
+      setError('Сначала выберите мастера')
+      return
+    }
+
     setLoading(true)
     setError('')
     setBookingError('')
@@ -26,8 +66,8 @@ function Booking() {
     setShowSlots(true)
 
     try {
-      // Временно используем фиксированные master и service до добавления их выбора.
-      const data = await getSlots(1, 1, date)
+      // Услуга пока временно фиксирована: выбор услуги добавим следующим шагом.
+      const data = await getSlots(Number(selectedMasterId), 1, date)
       setSlots(Array.isArray(data) ? data : data.results || [])
     } catch {
       setSlots([])
@@ -35,6 +75,14 @@ function Booking() {
     } finally {
       setLoading(false)
     }
+  }
+
+  function handleMasterChange(event) {
+    setSelectedMasterId(event.target.value)
+    setSlots([])
+    setSelectedSlot(null)
+    setShowSlots(false)
+    setError('')
   }
 
   function handleSlotSelect(slot) {
@@ -55,7 +103,7 @@ function Booking() {
     try {
       await createBooking(
         {
-          master: 1,
+          master: Number(selectedMasterId),
           service_ids: [1],
           workplace: selectedSlot.workplace_id,
           start_at: selectedSlot.start_at,
@@ -91,6 +139,33 @@ function Booking() {
         className="mt-8 rounded-2xl bg-[var(--color-white)] p-6 shadow-[0_14px_35px_rgba(74,48,71,0.1)] ring-1 ring-[var(--color-sand)]/70"
       >
         <label
+          htmlFor="booking-master"
+          className="mb-2 block text-sm font-medium text-[var(--color-plum)]"
+        >
+          Мастер
+        </label>
+        {mastersLoading && <p className="mb-4 text-sm text-[var(--color-muted)]">Загрузка мастеров...</p>}
+        {mastersError && <p className="mb-4 text-sm text-[#8e3f4a]">Не удалось загрузить мастеров</p>}
+        {!mastersLoading && !mastersError && masters.length === 0 && (
+          <p className="mb-4 text-sm text-[var(--color-muted)]">Мастера не найдены</p>
+        )}
+        {!mastersLoading && !mastersError && masters.length > 0 && (
+          <select
+            id="booking-master"
+            value={selectedMasterId}
+            onChange={handleMasterChange}
+            className="mb-5 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
+          >
+            <option value="">Выберите мастера</option>
+            {masters.map((master) => (
+              <option key={master.id} value={master.id}>
+                {master.display_name || master.name || `Мастер #${master.id}`}
+              </option>
+            ))}
+          </select>
+        )}
+
+        <label
           htmlFor="booking-date"
           className="mb-2 block text-sm font-medium text-[var(--color-plum)]"
         >
@@ -107,12 +182,15 @@ function Booking() {
           />
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || mastersLoading || !selectedMasterId}
             className="shrink-0 rounded-xl bg-[var(--color-plum)] px-5 py-3 font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Показать свободное время
           </button>
         </div>
+        {!selectedMasterId && !mastersLoading && masters.length > 0 && (
+          <p className="mt-3 text-sm text-[var(--color-muted)]">Сначала выберите мастера</p>
+        )}
       </form>
 
       {showSlots && (
