@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getMyBookings } from '../api/bookings'
+import { cancelBooking, getMyBookings } from '../api/bookings'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const statusLabels = {
@@ -16,6 +16,9 @@ function MyBookings() {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [actionError, setActionError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [cancellingId, setCancellingId] = useState(null)
 
   useEffect(() => {
     let isMounted = true
@@ -51,6 +54,37 @@ function MyBookings() {
     }
   }, [token])
 
+  async function handleCancel(bookingId) {
+    if (!window.confirm('Вы действительно хотите отменить запись?')) {
+      return
+    }
+
+    setCancellingId(bookingId)
+    setActionError('')
+    setSuccess('')
+
+    try {
+      const updatedBooking = await cancelBooking(bookingId, token)
+      setBookings((currentBookings) =>
+        currentBookings.map((booking) =>
+          booking.id === bookingId
+            ? { ...booking, ...updatedBooking, status: 'cancelled' }
+            : booking,
+        ),
+      )
+      setSuccess('Запись отменена')
+    } catch (requestError) {
+      const responseData = requestError.data
+      const serverError =
+        responseData?.detail ||
+        Object.values(responseData || {})[0]?.[0] ||
+        'Не удалось отменить запись'
+      setActionError(serverError)
+    } finally {
+      setCancellingId(null)
+    }
+  }
+
   if (!token) {
     return <p>Войдите, чтобы посмотреть свои записи</p>
   }
@@ -72,6 +106,9 @@ function MyBookings() {
         Мои записи
       </h1>
 
+      {success && <p className="mt-5 text-[#3f7659]" role="status">{success}</p>}
+      {actionError && <p className="mt-5 text-[#8e3f4a]" role="alert">{actionError}</p>}
+
       {bookings.length === 0 ? (
         <p className="mt-8 text-[var(--color-muted)]">У вас пока нет записей</p>
       ) : (
@@ -80,6 +117,7 @@ function MyBookings() {
             const startDate = new Date(booking.start_at)
             const services = booking.services || []
             const serviceNames = services.map((service) => service.service_name).join(', ')
+            const canCancel = booking.status === 'new' || booking.status === 'confirmed'
 
             return (
               <article
@@ -116,6 +154,16 @@ function MyBookings() {
                     </dd>
                   </div>
                 </dl>
+                {canCancel && (
+                  <button
+                    type="button"
+                    onClick={() => handleCancel(booking.id)}
+                    disabled={cancellingId === booking.id}
+                    className="mt-6 rounded-xl border border-[#8e3f4a] px-4 py-2 text-sm font-medium text-[#8e3f4a] transition hover:bg-[#8e3f4a] hover:text-[var(--color-white)] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {cancellingId === booking.id ? 'Отмена...' : 'Отменить'}
+                  </button>
+                )}
               </article>
             )
           })}

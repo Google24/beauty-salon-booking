@@ -21,3 +21,10 @@ export function createBooking(data, token) {
 export function getMyBookings(token) {
   return apiRequest('/bookings/bookings/', { token })
 }
+
+export function cancelBooking(id, token) {
+  return apiRequest(`/bookings/bookings/${id}/cancel/`, {
+    method: 'POST',
+    token,
+  })
+}
