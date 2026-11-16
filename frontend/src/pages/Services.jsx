@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import SkeletonCard from '../components/SkeletonCard'
 import { getServices } from '../api/services'
 
 function Services() {
@@ -58,7 +59,13 @@ function Services() {
         className="mt-6 w-full max-w-xl rounded-xl border border-[var(--color-sand)] bg-[var(--color-white)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
       />
 
-      {loading && <p className="mt-8">Загрузка услуг...</p>}
+      {loading && (
+        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 4 }, (_, index) => (
+            <SkeletonCard key={index} />
+          ))}
+        </div>
+      )}
       {error && <p className="mt-8 text-[#8e3f4a]">Не удалось загрузить услуги. Проверьте подключение к серверу</p>}
       {!loading && !error && services.length === 0 && search.trim() && (
         <p className="mt-8 text-[var(--color-muted)]">По вашему запросу ничего не найдено</p>

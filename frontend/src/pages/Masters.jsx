@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import SkeletonCard from '../components/SkeletonCard'
 import { getMasters } from '../api/masters'
 
 const specializationLabels = {
@@ -43,7 +44,21 @@ function Masters() {
   }, [])
 
   if (loading) {
-    return <p>Загрузка мастеров...</p>
+    return (
+      <section>
+        <p className="mb-3 text-sm font-medium tracking-[0.18em] text-[var(--color-gold)] uppercase">
+          Команда салона
+        </p>
+        <h1 className="text-3xl font-semibold text-[var(--color-plum-deep)] sm:text-4xl">
+          Наши мастера
+        </h1>
+        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 4 }, (_, index) => (
+            <SkeletonCard key={index} />
+          ))}
+        </div>
+      </section>
+    )
   }
 
   if (error) {
