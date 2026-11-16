@@ -27,6 +27,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             "price",
             "duration_min",
             "buffer_min",
+            "required_workplace_type",
             "category",
             "category_name",
             "is_active",
