@@ -160,7 +160,7 @@ function MyBookings() {
                     type="button"
                     onClick={() => handleCancel(booking.id)}
                     disabled={cancellingId === booking.id}
-                    className="mt-6 rounded-xl border border-[#8e3f4a] px-4 py-2 text-sm font-medium text-[#8e3f4a] transition hover:bg-[#8e3f4a] hover:text-[var(--color-white)] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-6 min-h-11 w-full rounded-xl border sm:w-auto border-[#8e3f4a] px-4 py-2 text-sm font-medium text-[#8e3f4a] transition hover:bg-[#8e3f4a] hover:text-[var(--color-white)] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {cancellingId === booking.id ? 'Отмена...' : 'Отменить'}
                   </button>

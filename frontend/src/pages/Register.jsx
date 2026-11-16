@@ -73,42 +73,42 @@ function Register() {
           <label htmlFor="first-name" className="mb-2 block text-sm font-medium text-[var(--color-plum)]">
             Имя
           </label>
-          <input id="first-name" name="first_name" type="text" value={form.first_name} onChange={handleChange} required className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
+          <input id="first-name" name="first_name" type="text" value={form.first_name} onChange={handleChange} required className="min-h-12 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
         </div>
 
         <div>
           <label htmlFor="last-name" className="mb-2 block text-sm font-medium text-[var(--color-plum)]">
             Фамилия
           </label>
-          <input id="last-name" name="last_name" type="text" value={form.last_name} onChange={handleChange} required className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
+          <input id="last-name" name="last_name" type="text" value={form.last_name} onChange={handleChange} required className="min-h-12 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
         </div>
 
         <div>
           <label htmlFor="register-email" className="mb-2 block text-sm font-medium text-[var(--color-plum)]">
             Email
           </label>
-          <input id="register-email" name="email" type="email" value={form.email} onChange={handleChange} required className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
+          <input id="register-email" name="email" type="email" value={form.email} onChange={handleChange} required className="min-h-12 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
         </div>
 
         <div>
           <label htmlFor="phone" className="mb-2 block text-sm font-medium text-[var(--color-plum)]">
             Телефон
           </label>
-          <input id="phone" name="phone" type="tel" value={form.phone} onChange={handleChange} required className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
+          <input id="phone" name="phone" type="tel" value={form.phone} onChange={handleChange} required className="min-h-12 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
         </div>
 
         <div>
           <label htmlFor="register-password" className="mb-2 block text-sm font-medium text-[var(--color-plum)]">
             Пароль
           </label>
-          <input id="register-password" name="password" type="password" value={form.password} onChange={handleChange} required className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
+          <input id="register-password" name="password" type="password" value={form.password} onChange={handleChange} required className="min-h-12 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
         </div>
 
         <div>
           <label htmlFor="register-password2" className="mb-2 block text-sm font-medium text-[var(--color-plum)]">
             Повторите пароль
           </label>
-          <input id="register-password2" name="password2" type="password" value={form.password2} onChange={handleChange} required className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
+          <input id="register-password2" name="password2" type="password" value={form.password2} onChange={handleChange} required className="min-h-12 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]" />
         </div>
 
         <button type="submit" disabled={isSubmitting} className="w-full rounded-xl bg-[var(--color-plum)] px-4 py-3 font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)] disabled:cursor-not-allowed disabled:opacity-60">

@@ -168,7 +168,7 @@ function Booking() {
     Boolean(selectedServiceId)
 
   return (
-    <section className="mx-auto w-full max-w-2xl">
+    <section className="mx-auto w-full max-w-2xl min-w-0">
       <p className="mb-3 text-sm font-medium tracking-[0.18em] text-[var(--color-gold)] uppercase">
         Онлайн-запись
       </p>
@@ -247,12 +247,12 @@ function Booking() {
             value={date}
             onChange={(event) => setDate(event.target.value)}
             required
-            className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
+            className="min-h-12 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
           />
           <button
             type="submit"
             disabled={!canSearchSlots}
-            className="shrink-0 rounded-xl bg-[var(--color-plum)] px-5 py-3 font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-12 w-full shrink-0 rounded-xl bg-[var(--color-plum)] px-5 py-3 font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             Показать свободное время
           </button>
@@ -313,7 +313,7 @@ function Booking() {
                 type="button"
                 onClick={handleBookingConfirm}
                 disabled={bookingLoading}
-                className="mt-4 rounded-xl bg-[var(--color-gold)] px-5 py-3 font-medium text-[var(--color-plum-deep)] transition hover:bg-[var(--color-blush)] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-4 min-h-12 w-full rounded-xl bg-[var(--color-gold)] px-5 py-3 font-medium text-[var(--color-plum-deep)] transition hover:bg-[var(--color-blush)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {bookingLoading ? 'Подтверждение...' : 'Подтвердить запись'}
               </button>

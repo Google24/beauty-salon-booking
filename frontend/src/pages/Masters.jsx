@@ -83,7 +83,7 @@ function Masters() {
               key={master.id}
               className="rounded-2xl bg-[var(--color-white)] p-6 shadow-[0_14px_35px_rgba(74,48,71,0.1)] ring-1 ring-[var(--color-sand)]/70"
             >
-              <h2 className="text-xl font-semibold text-[var(--color-plum)]">
+              <h2 className="break-words text-xl font-semibold text-[var(--color-plum)]">
                 {master.display_name || master.name || 'Мастер'}
               </h2>
               <p className="mt-2 text-sm font-medium text-[var(--color-gold)]">

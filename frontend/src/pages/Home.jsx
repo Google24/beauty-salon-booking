@@ -29,7 +29,7 @@ function Home() {
           <p className="mb-5 text-sm font-medium tracking-[0.24em] text-[var(--color-gold)] uppercase">
             Салон красоты
           </p>
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
+          <h1 className="break-words text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">
             Добро пожаловать в Atelier Beauté
           </h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-[var(--color-sand)] sm:text-lg">

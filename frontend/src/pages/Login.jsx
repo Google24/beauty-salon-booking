@@ -67,7 +67,7 @@ function Login() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
-            className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
+            className="min-h-12 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
           />
         </div>
 
@@ -85,7 +85,7 @@ function Login() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
-            className="w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
+            className="min-h-12 w-full rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
           />
         </div>
 
