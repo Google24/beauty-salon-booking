@@ -41,6 +41,7 @@ class MeView(generics.RetrieveUpdateAPIView):
 
 class ChangePasswordView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
+    
     @extend_schema(
     request=ChangePasswordSerializer,
     responses={200: dict},
