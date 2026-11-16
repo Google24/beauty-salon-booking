@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { cancelBooking, getMyBookings } from '../api/bookings'
 import { useAuth } from '../context/AuthContext.jsx'
 
@@ -72,14 +73,14 @@ function MyBookings() {
             : booking,
         ),
       )
-      setSuccess('Запись отменена')
+      toast.success('Запись отменена')
     } catch (requestError) {
       const responseData = requestError.data
       const serverError =
         responseData?.detail ||
         Object.values(responseData || {})[0]?.[0] ||
         'Не удалось отменить запись'
-      setActionError(serverError)
+      toast.error(serverError)
     } finally {
       setCancellingId(null)
     }

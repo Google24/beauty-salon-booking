@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { register } from '../api/auth'
 
@@ -34,6 +35,7 @@ function Register() {
   async function handleSubmit(event) {
     event.preventDefault()
     setError('')
+    toast.dismiss()
     setIsSubmitting(true)
 
     try {
@@ -42,7 +44,7 @@ function Register() {
         state: { message: 'Регистрация успешна, войдите' },
       })
     } catch (requestError) {
-      setError(getServerError(requestError))
+      toast.error(getServerError(requestError))
     } finally {
       setIsSubmitting(false)
     }

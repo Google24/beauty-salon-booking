@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
@@ -14,13 +15,14 @@ function Login() {
   async function handleSubmit(event) {
     event.preventDefault()
     setError('')
+    toast.dismiss()
     setIsSubmitting(true)
 
     try {
       await signIn(email, password)
       navigate('/')
     } catch {
-      setError('Неверный email или пароль')
+      toast.error('Неверный email или пароль')
     } finally {
       setIsSubmitting(false)
     }
