@@ -1,9 +1,33 @@
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { createBooking, getSlots } from '../api/bookings'
 import { getMasters } from '../api/masters'
 import { getServices } from '../api/services'
 import { useAuth } from '../context/AuthContext.jsx'
+
+function getBookingError(requestError, fallbackMessage) {
+  const responseData = requestError?.data
+
+  function firstMessage(value) {
+    if (typeof value === 'string') return value.trim() || null
+    if (value && typeof value === 'object') {
+      for (const item of Object.values(value)) {
+        const message = firstMessage(item)
+        if (message) return message
+      }
+    }
+    return null
+  }
+
+  return (
+    firstMessage(responseData?.date) ||
+    firstMessage(responseData?.start_at) ||
+    firstMessage(responseData?.detail) ||
+    firstMessage(responseData) ||
+    fallbackMessage
+  )
+}
 
 function Booking() {
   const navigate = useNavigate()
@@ -96,9 +120,14 @@ function Booking() {
         date,
       )
       setSlots(Array.isArray(data) ? data : data.results || [])
-    } catch {
+    } catch (requestError) {
       setSlots([])
-      setError('Слоты не найдены или ошибка сервера')
+      const slotError = getBookingError(
+        requestError,
+        'Слоты не найдены или ошибка сервера',
+      )
+      setError(slotError)
+      toast.error(slotError)
     } finally {
       setLoading(false)
     }
@@ -149,12 +178,12 @@ function Booking() {
       setSuccess('Вы успешно записаны!')
       window.setTimeout(() => navigate('/profile'), 800)
     } catch (requestError) {
-      const responseData = requestError.data
-      const serverError =
-        responseData?.detail ||
-        Object.values(responseData || {})[0]?.[0] ||
-        'Не удалось создать запись. Попробуйте выбрать другое время.'
+      const serverError = getBookingError(
+        requestError,
+        'Не удалось создать запись. Попробуйте выбрать другое время.',
+      )
       setBookingError(serverError)
+      toast.error(serverError)
     } finally {
       setBookingLoading(false)
     }
