@@ -1,10 +1,13 @@
 from django.shortcuts import render
 from django.db.models import Prefetch
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
-from accounts.permissions import IsAdminOrReadOnly
+from accounts.permissions import (
+    IsAdminOrMasterForSchedule,
+    IsAdminOrReadOnly,
+)
 from catalog.models import Service
 from .models import Master, MasterAbsence, MasterService, WorkSchedule
 from .serializers import (
@@ -88,19 +91,40 @@ class MasterServiceViewSet(viewsets.ModelViewSet):
 
 
 class WorkScheduleViewSet(viewsets.ModelViewSet):
-    queryset = WorkSchedule.objects.select_related("master")
+    queryset = WorkSchedule.objects.select_related("master", "master__user")
     serializer_class = WorkScheduleSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdminOrMasterForSchedule,)
 
     def get_queryset(self):
         queryset = super().get_queryset()
-
+        user = self.request.user
         master_id = self.request.query_params.get("master")
 
-        if master_id:
+        if user.is_authenticated and user.role == "master":
+            queryset = queryset.filter(master__user=user)
+        elif master_id:
             queryset = queryset.filter(master_id=master_id)
 
         return queryset
+    def perform_create(self, serializer):
+        user = self.request.user
+
+        if user.role == "master":
+            try:
+                master = user.master_profile
+            except Master.DoesNotExist:
+                raise serializers.ValidationError(
+                    {
+                        "master": (
+                            "Для пользователя не создан профиль мастера."
+                        )
+                    }
+                )
+
+            serializer.save(master=master)
+            return
+
+        serializer.save()
 
 
 class MasterAbsenceViewSet(viewsets.ModelViewSet):
