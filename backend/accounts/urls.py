@@ -1,6 +1,8 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
 from .views import (
+    AdminUserViewSet,
     ChangePasswordView,
     LoginView,
     MeView,
@@ -9,6 +11,8 @@ from .views import (
 )
 
 app_name = "accounts"
+router = DefaultRouter()
+router.register("users", AdminUserViewSet, basename="admin-user")
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
@@ -25,3 +29,4 @@ urlpatterns = [
         name="change_password",
     ),
 ]
+urlpatterns += router.urls

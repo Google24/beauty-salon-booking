@@ -135,6 +135,11 @@ def validate_master_schedule(master, start_at, end_at):
             "У мастера нет рабочей смены в выбранный день."
         )
 
+    if schedule.start_time is None or schedule.end_time is None:
+        raise ValidationError(
+            "Для рабочего дня не указано время смены."
+        )
+
     if (
         local_start.time() < schedule.start_time
         or local_end.time() > schedule.end_time
