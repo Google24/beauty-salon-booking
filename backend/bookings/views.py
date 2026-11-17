@@ -127,6 +127,8 @@ class BookingViewSet(viewsets.ModelViewSet):
 
         if user.is_superuser or user.role == "admin":
             return queryset
+        if user.role == "master":
+            return queryset.filter(master__user=user)
 
         return queryset.filter(client=user)
 
