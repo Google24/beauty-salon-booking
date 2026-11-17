@@ -1,6 +1,5 @@
 from rest_framework.filters import SearchFilter
-
-# Create your views here.
+from accounts.permissions import IsAdmin
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response

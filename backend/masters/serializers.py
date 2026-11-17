@@ -106,6 +106,11 @@ class WorkScheduleSerializer(serializers.ModelSerializer):
             "id",
             "weekday_name",
         )
+        extra_kwargs = {
+            "master": {
+                "required": False,
+            },
+        }
 
 
 class MasterAbsenceSerializer(serializers.ModelSerializer):
