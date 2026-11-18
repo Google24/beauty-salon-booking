@@ -5,6 +5,7 @@ import Booking from './pages/Booking'
 import Home from './pages/Home'
 import AdminUsers from './pages/AdminUsers'
 import Login from './pages/Login'
+import MasterBookings from './pages/MasterBookings'
 import Masters from './pages/Masters'
 import MyBookings from './pages/MyBookings'
 import Profile from './pages/Profile'
@@ -29,6 +30,9 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute adminOnly />}>
             <Route path="/admin/users" element={<AdminUsers />} />
+          </Route>
+          <Route element={<ProtectedRoute requiredRole="master" />}>
+            <Route path="/master/bookings" element={<MasterBookings />} />
           </Route>
         </Routes>
       </Layout>
