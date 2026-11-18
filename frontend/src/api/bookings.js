@@ -26,6 +26,14 @@ export function getMasterBookings(token) {
   return apiRequest('/bookings/bookings/', { token })
 }
 
+export function createReview(bookingId, data, token) {
+  return apiRequest(`/bookings/bookings/${bookingId}/review/`, {
+    method: 'POST',
+    token,
+    body: JSON.stringify({ rating: data.rating, text: data.text }),
+  })
+}
+
 export function cancelBooking(id, token) {
   return apiRequest(`/bookings/bookings/${id}/cancel/`, {
     method: 'POST',

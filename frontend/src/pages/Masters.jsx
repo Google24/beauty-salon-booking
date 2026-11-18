@@ -89,6 +89,11 @@ function Masters() {
               <p className="mt-2 text-sm font-medium text-[var(--color-gold)]">
                 {specializationLabels[master.specialization] || master.specialization || 'Специалист салона'}
               </p>
+              {(master.rating ?? master.average_rating) != null && (
+                <p className="mt-2 text-sm font-medium text-[var(--color-plum)]">
+                  Рейтинг: {Number(master.rating ?? master.average_rating).toFixed(1)} ★
+                </p>
+              )}
               <p className="mt-4 text-sm leading-6 text-[var(--color-muted)]">
                 {master.info || master.description || 'Информация о мастере пока не добавлена.'}
               </p>

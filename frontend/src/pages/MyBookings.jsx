@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { cancelBooking, getMyBookings } from '../api/bookings'
+import { cancelBooking, createReview, getMyBookings } from '../api/bookings'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const statusLabels = {
@@ -54,6 +54,36 @@ function MyBookings() {
       isMounted = false
     }
   }, [token])
+
+  async function handleReview(bookingId) {
+    const ratingInput = window.prompt('Оценка мастера от 1 до 5:')
+    if (ratingInput === null) {
+      return
+    }
+
+    const rating = Number(ratingInput)
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      toast.error('Введите целое число от 1 до 5')
+      return
+    }
+
+    const text = window.prompt('Текст отзыва:')
+    if (text === null) {
+      return
+    }
+
+    try {
+      await createReview(bookingId, { rating, text }, token)
+      toast.success('Спасибо за отзыв!')
+    } catch (requestError) {
+      const responseData = requestError.data
+      const serverError =
+        responseData?.detail ||
+        Object.values(responseData || {})[0]?.[0] ||
+        'Не удалось отправить отзыв'
+      toast.error(serverError)
+    }
+  }
 
   async function handleCancel(bookingId) {
     if (!window.confirm('Вы действительно хотите отменить запись?')) {
@@ -155,6 +185,15 @@ function MyBookings() {
                     </dd>
                   </div>
                 </dl>
+                {booking.status === 'done' && (
+                  <button
+                    type="button"
+                    onClick={() => handleReview(booking.id)}
+                    className="mt-6 min-h-11 w-full rounded-xl bg-[var(--color-plum)] px-4 py-2 text-sm font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)] sm:w-auto"
+                  >
+                    Оставить отзыв
+                  </button>
+                )}
                 {canCancel && (
                   <button
                     type="button"
