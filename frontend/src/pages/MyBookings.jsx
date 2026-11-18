@@ -20,6 +20,10 @@ function MyBookings() {
   const [actionError, setActionError] = useState('')
   const [success, setSuccess] = useState('')
   const [cancellingId, setCancellingId] = useState(null)
+  const [reviewBookingId, setReviewBookingId] = useState(null)
+  const [reviewRating, setReviewRating] = useState(0)
+  const [reviewText, setReviewText] = useState('')
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -55,25 +59,30 @@ function MyBookings() {
     }
   }, [token])
 
-  async function handleReview(bookingId) {
-    const ratingInput = window.prompt('Оценка мастера от 1 до 5:')
-    if (ratingInput === null) {
+  function openReviewModal(bookingId) {
+    setReviewBookingId(bookingId)
+    setReviewRating(0)
+    setReviewText('')
+  }
+
+  function closeReviewModal() {
+    if (!reviewSubmitting) {
+      setReviewBookingId(null)
+    }
+  }
+
+  async function handleReviewSubmit(event) {
+    event.preventDefault()
+
+    if (!reviewRating) {
+      toast.error('Выберите оценку от 1 до 5')
       return
     }
 
-    const rating = Number(ratingInput)
-    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-      toast.error('Введите целое число от 1 до 5')
-      return
-    }
-
-    const text = window.prompt('Текст отзыва:')
-    if (text === null) {
-      return
-    }
-
+    setReviewSubmitting(true)
     try {
-      await createReview(bookingId, { rating, text }, token)
+      await createReview(reviewBookingId, { rating: reviewRating, text: reviewText }, token)
+      setReviewBookingId(null)
       toast.success('Спасибо за отзыв!')
     } catch (requestError) {
       const responseData = requestError.data
@@ -82,6 +91,8 @@ function MyBookings() {
         Object.values(responseData || {})[0]?.[0] ||
         'Не удалось отправить отзыв'
       toast.error(serverError)
+    } finally {
+      setReviewSubmitting(false)
     }
   }
 
@@ -188,7 +199,7 @@ function MyBookings() {
                 {booking.status === 'done' && (
                   <button
                     type="button"
-                    onClick={() => handleReview(booking.id)}
+                    onClick={() => openReviewModal(booking.id)}
                     className="mt-6 min-h-11 w-full rounded-xl bg-[var(--color-plum)] px-4 py-2 text-sm font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)] sm:w-auto"
                   >
                     Оставить отзыв
@@ -207,6 +218,75 @@ function MyBookings() {
               </article>
             )
           })}
+        </div>
+      )}
+      {reviewBookingId !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="review-modal-title"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeReviewModal()
+          }}
+        >
+          <form
+            onSubmit={handleReviewSubmit}
+            className="w-full max-w-md rounded-2xl bg-[var(--color-white)] p-6 shadow-2xl"
+          >
+            <h2 id="review-modal-title" className="text-2xl font-semibold text-[var(--color-plum-deep)]">
+              Оставить отзыв
+            </h2>
+            <p className="mt-2 text-sm text-[var(--color-muted)]">Оцените работу мастера</p>
+
+            <fieldset className="mt-5">
+              <legend className="text-sm font-medium text-[var(--color-plum)]">Ваша оценка</legend>
+              <div className="mt-2 flex gap-1" aria-label="Оценка от 1 до 5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    aria-label={`${star} ${star === 1 ? 'звезда' : 'звезды'}`}
+                    aria-pressed={reviewRating === star}
+                    onClick={() => setReviewRating(star)}
+                    className={`text-3xl transition ${star <= reviewRating ? 'text-[var(--color-gold)]' : 'text-[var(--color-sand)]'} hover:scale-110`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <label htmlFor="review-text" className="mt-5 block text-sm font-medium text-[var(--color-plum)]">
+              Комментарий
+            </label>
+            <textarea
+              id="review-text"
+              value={reviewText}
+              onChange={(event) => setReviewText(event.target.value)}
+              rows="4"
+              placeholder="Расскажите о вашем опыте"
+              className="mt-2 w-full resize-y rounded-xl border border-[var(--color-sand)] bg-[var(--color-cream)] px-4 py-3 text-sm outline-none focus:border-[var(--color-plum)] focus:ring-2 focus:ring-[var(--color-plum)]/15"
+            />
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={closeReviewModal}
+                disabled={reviewSubmitting}
+                className="min-h-11 rounded-xl border border-[var(--color-plum)] px-5 py-2 text-sm font-medium text-[var(--color-plum)] transition hover:bg-[var(--color-plum)] hover:text-[var(--color-white)] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Отмена
+              </button>
+              <button
+                type="submit"
+                disabled={reviewSubmitting}
+                className="min-h-11 rounded-xl bg-[var(--color-plum)] px-5 py-2 text-sm font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {reviewSubmitting ? 'Отправка...' : 'Отправить'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </section>
