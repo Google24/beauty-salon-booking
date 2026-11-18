@@ -3,6 +3,7 @@ import './App.css'
 import Layout from './components/Layout'
 import Booking from './pages/Booking'
 import Home from './pages/Home'
+import AdminUsers from './pages/AdminUsers'
 import Login from './pages/Login'
 import Masters from './pages/Masters'
 import MyBookings from './pages/MyBookings'
@@ -25,6 +26,9 @@ function App() {
             <Route path="/booking" element={<Booking />} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/profile" element={<Profile />} />
+          </Route>
+          <Route element={<ProtectedRoute adminOnly />}>
+            <Route path="/admin/users" element={<AdminUsers />} />
           </Route>
         </Routes>
       </Layout>
