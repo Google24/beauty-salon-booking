@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import Booking from './pages/Booking'
 import Home from './pages/Home'
 import AdminUsers from './pages/AdminUsers'
+import About from './pages/About'
 import Login from './pages/Login'
 import MasterBookings from './pages/MasterBookings'
 import Masters from './pages/Masters'
@@ -19,6 +20,7 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/masters" element={<Masters />} />
           <Route path="/login" element={<Login />} />

@@ -23,6 +23,12 @@ function Layout({ children }) {
             className="hidden items-center gap-7 text-sm text-[var(--color-muted)] md:flex"
           >
             <NavLink
+              to="/about"
+              className="whitespace-nowrap transition-colors hover:text-[var(--color-plum)]"
+            >
+              О салоне
+            </NavLink>
+            <NavLink
               to="/services"
               className="transition-colors hover:text-[var(--color-plum)]"
             >
@@ -91,6 +97,9 @@ function Layout({ children }) {
           aria-label="Мобильная навигация"
           className="mx-auto flex max-w-6xl gap-5 overflow-x-auto px-5 pb-4 text-sm text-[var(--color-muted)] md:hidden sm:px-8"
         >
+          <NavLink to="/about" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+            О салоне
+          </NavLink>
           <NavLink to="/services" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Каталог услуг
           </NavLink>
