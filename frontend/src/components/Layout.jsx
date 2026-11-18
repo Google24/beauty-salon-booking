@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext.jsx'
 function Layout({ children }) {
   const { user, signOut } = useAuth()
   const userLabel = user?.first_name || user?.email
+  const isAdmin = user?.is_staff || user?.role === 'admin'
+  const isMaster = user?.role === 'master'
 
   return (
     <div className="flex min-h-screen flex-col text-[var(--color-ink)]">
@@ -44,6 +46,22 @@ function Layout({ children }) {
             >
               Мои записи
             </NavLink>
+            {isAdmin && (
+              <NavLink
+                to="/admin/users"
+                className="transition-colors hover:text-[var(--color-plum)]"
+              >
+                Админ-панель
+              </NavLink>
+            )}
+            {isMaster && (
+              <NavLink
+                to="/master/bookings"
+                className="transition-colors hover:text-[var(--color-plum)]"
+              >
+                Кабинет мастера
+              </NavLink>
+            )}
           </nav>
 
           {user ? (
@@ -85,6 +103,16 @@ function Layout({ children }) {
           <NavLink to="/my-bookings" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Мои записи
           </NavLink>
+          {isAdmin && (
+            <NavLink to="/admin/users" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+              Админ-панель
+            </NavLink>
+          )}
+          {isMaster && (
+            <NavLink to="/master/bookings" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+              Кабинет мастера
+            </NavLink>
+          )}
         </nav>
       </header>
 
