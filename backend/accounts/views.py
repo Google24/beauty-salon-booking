@@ -1,5 +1,7 @@
+from rest_framework.filters import SearchFilter
+from accounts.permissions import IsAdmin
 from django.contrib.auth import get_user_model
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema
@@ -9,6 +11,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from .serializers import (
+    AdminUserSerializer,
     ChangePasswordSerializer,
     RegisterSerializer,
     UserSerializer,
@@ -41,6 +44,7 @@ class MeView(generics.RetrieveUpdateAPIView):
 
 class ChangePasswordView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
+
     @extend_schema(
     request=ChangePasswordSerializer,
     responses={200: dict},
@@ -61,3 +65,17 @@ class ChangePasswordView(APIView):
             {"detail": "Пароль успешно изменён."},
             status=status.HTTP_200_OK,
         )
+class AdminUserViewSet(viewsets.ModelViewSet):
+    serializer_class = AdminUserSerializer
+    permission_classes = (IsAdmin,)
+    http_method_names = ("get", "patch", "head", "options")
+    filter_backends = (SearchFilter,)
+    search_fields = (
+        "email",
+        "first_name",
+        "last_name",
+        "phone",
+    )
+
+    def get_queryset(self):
+        return User.objects.all().order_by("-created_at")

@@ -103,3 +103,24 @@ class ChangePasswordSerializer(serializers.Serializer):
         validate_password(attrs["new_password"], user=user)
 
         return attrs
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "phone",
+            "role",
+            "is_active",
+            "is_staff",
+            "created_at",
+        )
+        read_only_fields = (
+            "id",
+            "email",
+            "is_staff",
+            "created_at",
+        )
