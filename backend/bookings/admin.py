@@ -65,6 +65,24 @@ class BookingAdmin(admin.ModelAdmin):
         BookingHistoryInline,
     )
 
+    def save_model(self, request, obj, form, change):
+        old_status = None
+        if change:
+            old_status = (
+                Booking.objects
+                .filter(pk=obj.pk)
+                .values_list("status", flat=True)
+                .first()
+            )
+        super().save_model(request, obj, form, change)
+        if change and old_status and old_status != obj.status:
+            BookingHistory.objects.create(
+                booking=obj,
+                from_status=old_status,
+                to_status=obj.status,
+                changed_by=request.user,
+                comment="Статус изменён через Django Admin.",
+            )
 
 @admin.register(BookingService)
 class BookingServiceAdmin(admin.ModelAdmin):
