@@ -18,6 +18,7 @@ from .serializers import (
     BookingHistorySerializer,
     BookingSerializer,
     BookingStatusSerializer,
+    ReviewSerializer,
 )
 from .services import (get_available_slots,
     validate_status_transition,
@@ -281,3 +282,32 @@ class BookingViewSet(viewsets.ModelViewSet):
         )
 
         return Response(serializer.data)
+    
+    @action(
+        detail=True,
+        methods=("post",),
+        url_path="review",
+    )
+    def review(self, request, pk=None):
+        booking = self.get_object()
+        if booking.client_id != request.user.id:
+            raise PermissionDenied(
+                "Оставить отзыв можно только на свою запись."
+            )
+        if booking.status != Booking.Status.DONE:
+            return Response(
+                {"detail": "Отзыв можно оставить после завершения записи."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if hasattr(booking, "review"):
+            return Response(
+                {"detail": "Для этой записи отзыв уже оставлен."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        serializer = ReviewSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        review = serializer.save(booking=booking)
+        return Response(
+            ReviewSerializer(review).data,
+            status=status.HTTP_201_CREATED,
+        )

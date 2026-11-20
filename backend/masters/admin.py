@@ -24,6 +24,7 @@ class MasterAdmin(admin.ModelAdmin):
         "user",
         "specialization",
         "is_active",
+        "photo",
     )
     list_filter = ("specialization", "is_active")
     search_fields = (

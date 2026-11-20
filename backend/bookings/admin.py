@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Booking, BookingHistory, BookingService
+from .models import Booking, BookingHistory, BookingService, Review
 
 
 class BookingServiceInline(admin.TabularInline):
@@ -19,6 +19,17 @@ class BookingHistoryInline(admin.TabularInline):
         "comment",
     )
     can_delete = False
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ("booking", "rating", "created_at")
+    list_filter = ("rating", "created_at")
+    search_fields = (
+        "booking__client__email",
+        "booking__master__display_name",
+        "text",
+    )
+    readonly_fields = ("booking", "created_at")
 
 
 @admin.register(Booking)

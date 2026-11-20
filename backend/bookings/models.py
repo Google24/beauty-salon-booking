@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Booking(models.Model):
@@ -108,6 +108,32 @@ class BookingService(models.Model):
     def __str__(self):
         return f"{self.booking} — {self.service}"
 
+class Review(models.Model):
+    booking = models.OneToOneField(
+        Booking,
+        on_delete=models.CASCADE,
+        related_name="review",
+        verbose_name="Запись",
+    )
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Оценка",
+    )
+    text = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="Текст отзыва",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата создания",
+    )
+    class Meta:
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
+        ordering = ("-created_at",)
+    def __str__(self):
+        return f"{self.booking} — {self.rating}/5"
 
 class BookingHistory(models.Model):
     booking = models.ForeignKey(

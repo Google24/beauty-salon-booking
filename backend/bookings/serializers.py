@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from catalog.models import Service
-from .models import Booking, BookingHistory,BookingService
+from .models import Booking, BookingHistory,BookingService, Review
 from .services import create_booking
 
 class AvailableSlotSerializer(serializers.Serializer):
@@ -30,6 +30,27 @@ class BookingServiceReadSerializer(serializers.ModelSerializer):
 
 
 class BookingSerializer(serializers.ModelSerializer):
+    client_email = serializers.EmailField(
+        source="client.email",
+        read_only=True,
+    )
+    client_first_name = serializers.CharField(
+        source="client.first_name",
+        read_only=True,
+    )
+    client_last_name = serializers.CharField(
+        source="client.last_name",
+        read_only=True,
+    )
+    client_name = serializers.SerializerMethodField()
+    master_name = serializers.CharField(
+        source="master.display_name",
+        read_only=True,
+    )
+    workplace_name = serializers.CharField(
+        source="workplace.name",
+        read_only=True,
+    )
     service_ids = serializers.PrimaryKeyRelatedField(
         queryset=Service.objects.filter(is_active=True),
         many=True,
@@ -46,8 +67,14 @@ class BookingSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "client",
+            "client_email",
+            "client_first_name",
+            "client_last_name",
+            "client_name",            
             "master",
+            "master_name",
             "workplace",
+            "workplace_name",
             "service_ids",
             "services",
             "start_at",
@@ -66,6 +93,8 @@ class BookingSerializer(serializers.ModelSerializer):
             "created_at",
             "services",
         )
+    def get_client_name(self, obj) -> str:
+        return obj.client.full_name
 
     def validate(self, attrs):
         master = attrs["master"]
@@ -124,6 +153,28 @@ class BookingHistorySerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = (
+            "id",
+            "booking",
+            "rating",
+            "text",
+            "created_at",
+        )
+        read_only_fields = (
+            "id",
+            "booking",
+            "created_at",
+        )
+    def validate_rating(self, value):
+        if value < 1 or value > 5:
+            raise serializers.ValidationError(
+                "Оценка должна быть от 1 до 5."
+            )
+        return value
+    
 class BookingStatusSerializer(serializers.Serializer):
     status = serializers.ChoiceField(
         choices=Booking.Status.choices,
