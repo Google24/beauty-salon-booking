@@ -41,6 +41,7 @@ function Booking() {
   const [mastersError, setMastersError] = useState(false)
   const [servicesError, setServicesError] = useState(false)
   const [date, setDate] = useState('')
+  const [comment, setComment] = useState('')
   const [slots, setSlots] = useState([])
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -171,7 +172,7 @@ function Booking() {
           service_ids: [Number(selectedServiceId)],
           workplace: selectedSlot.workplace_id,
           start_at: selectedSlot.start_at,
-          comment: '',
+          comment,
         },
         token,
       )
@@ -286,6 +287,21 @@ function Booking() {
             Показать свободное время
           </button>
         </div>
+
+        <label
+          htmlFor="booking-comment"
+          className="mt-5 mb-2 block text-sm font-medium text-[var(--color-plum)]"
+        >
+          Комментарий к записи
+        </label>
+        <textarea
+          id="booking-comment"
+          value={comment}
+          onChange={(event) => setComment(event.target.value)}
+          rows="3"
+          placeholder="Например, пожелания к визиту"
+          className="w-full resize-y rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)] px-4 py-3 text-[var(--color-ink)] outline-none transition focus:border-[var(--color-gold)]"
+        />
         {(!selectedMasterId || !selectedServiceId) && !mastersLoading && !servicesLoading && (
           <p className="mt-3 text-sm text-[var(--color-muted)]">
             Сначала выберите мастера и услугу
