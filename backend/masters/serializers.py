@@ -77,6 +77,7 @@ class MasterSerializer(serializers.ModelSerializer):
             "specialization",
             "is_active",
             "info",
+            "photo",
             "services",
         )
         read_only_fields = (
