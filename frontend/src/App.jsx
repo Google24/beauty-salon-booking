@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import Booking from './pages/Booking'
 import Home from './pages/Home'
 import AdminUsers from './pages/AdminUsers'
+import AdminServices from './pages/AdminServices'
 import About from './pages/About'
 import Login from './pages/Login'
 import MasterBookings from './pages/MasterBookings'
@@ -32,6 +33,7 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute adminOnly />}>
             <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/services" element={<AdminServices />} />
           </Route>
           <Route element={<ProtectedRoute requiredRole="master" />}>
             <Route path="/master/bookings" element={<MasterBookings />} />

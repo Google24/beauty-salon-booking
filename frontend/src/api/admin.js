@@ -13,3 +13,34 @@ export function updateUserRole(id, role, token) {
     body: JSON.stringify({ role }),
   })
 }
+
+export function getAdminCategories(token) {
+  return apiRequest('/catalog/categories/', { token })
+}
+
+export function getAdminServices(token) {
+  return apiRequest('/catalog/services/', { token })
+}
+
+export function createService(data, token) {
+  return apiRequest('/catalog/services/', {
+    method: 'POST',
+    token,
+    body: JSON.stringify(data),
+  })
+}
+
+export function updateService(id, data, token) {
+  return apiRequest(`/catalog/services/${id}/`, {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify(data),
+  })
+}
+
+export function deleteService(id, token) {
+  return apiRequest(`/catalog/services/${id}/`, {
+    method: 'DELETE',
+    token,
+  })
+}
