@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { cancelBooking, createReview, getMyBookings } from '../api/bookings'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -141,6 +142,9 @@ function MyBookings() {
 
   return (
     <section>
+      <NavLink to="/profile" className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-[var(--color-plum)] hover:text-[var(--color-gold)]">
+        <span aria-hidden="true">←</span> Назад в личный кабинет
+      </NavLink>
       <p className="mb-3 text-sm font-medium tracking-[0.18em] text-[var(--color-gold)] uppercase">
         Личный кабинет
       </p>

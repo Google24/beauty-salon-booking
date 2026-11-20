@@ -31,7 +31,7 @@ function MasterBookings() {
         const bookingList = Array.isArray(data) ? data : data.results || []
 
         if (isMounted) {
-          setBookings(bookingList)
+          setBookings(bookingList.sort((first, second) => new Date(second.start_at) - new Date(first.start_at)))
         }
       } catch {
         if (isMounted) {
@@ -107,6 +107,10 @@ function MasterBookings() {
                     <dd className="mt-1 font-medium text-[var(--color-ink)]">
                       {serviceNames || 'Услуга не указана'}
                     </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[var(--color-muted)]">Комментарий</dt>
+                    <dd className="mt-1 text-[var(--color-ink)]">{booking.comment || 'Комментарий отсутствует'}</dd>
                   </div>
                   <div>
                     <dt className="text-[var(--color-muted)]">Клиент</dt>

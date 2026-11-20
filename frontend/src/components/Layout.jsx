@@ -93,6 +93,9 @@ function Layout({ children }) {
 
           {user ? (
             <div className="flex items-center gap-3">
+              <a href="tel:+79991234567" className="hidden whitespace-nowrap text-sm font-medium text-[var(--color-plum)] transition hover:text-[var(--color-gold)] xl:inline">
+                +7 (999) 123-45-67
+              </a>
               <span className="hidden text-sm font-medium text-[var(--color-plum)] sm:inline">
                 {userLabel}
               </span>
@@ -105,12 +108,17 @@ function Layout({ children }) {
               </button>
             </div>
           ) : (
-            <NavLink
-              to="/login"
+            <div className="flex items-center gap-3">
+              <a href="tel:+79991234567" className="hidden whitespace-nowrap text-sm font-medium text-[var(--color-plum)] transition hover:text-[var(--color-gold)] xl:inline">
+                +7 (999) 123-45-67
+              </a>
+              <NavLink
+                to="/login"
               className="rounded-full border border-[var(--color-plum)] px-4 py-2 text-sm font-medium text-[var(--color-plum)] transition-colors hover:bg-[var(--color-plum)] hover:text-[var(--color-white)]"
             >
-              Войти
-            </NavLink>
+                Войти
+              </NavLink>
+            </div>
           )}
         </div>
 
@@ -160,8 +168,14 @@ function Layout({ children }) {
 
       <footer className="border-t border-[var(--color-sand)]/80 bg-[var(--color-plum-deep)] text-[var(--color-sand)]">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-5 py-7 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <span className="font-medium tracking-[0.12em] uppercase">Atelier beauté</span>
-          <span className="text-[var(--color-sand)]/75">Красота в деталях</span>
+          <div>
+             <span className="font-medium tracking-[0.12em] uppercase">Atelier beauté</span>
+             <p className="mt-2 text-[var(--color-sand)]/75">© 2026 Atelier Beauté. Все права защищены.</p>
+           </div>
+          <div className="text-[var(--color-sand)]/75">
+             <span>Красота в деталях</span>
+             <span className="ml-4">Социальные сети: VK · Telegram</span>
+           </div>
         </div>
       </footer>
     </div>
