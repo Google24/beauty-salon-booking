@@ -2,10 +2,12 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { register } from '../api/auth'
+import { useAuth } from '../context/AuthContext.jsx'
 
 function Register() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { signIn } = useAuth()
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
@@ -40,9 +42,8 @@ function Register() {
 
     try {
       await register(form)
-      navigate('/login', {
-        state: { message: 'Регистрация успешна, войдите' },
-      })
+      await signIn(form.email, form.password)
+      navigate('/')
     } catch (requestError) {
       toast.error(getServerError(requestError))
     } finally {
