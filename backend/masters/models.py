@@ -38,6 +38,13 @@ class Master(models.Model):
         default="",
         verbose_name="Описание",
     )
+    photo = models.FileField(
+        upload_to="masters/",
+        blank=True,
+        null=True,
+        verbose_name="Фотография мастера",
+    )
+
     services = models.ManyToManyField(
         "catalog.Service",
         through="MasterService",
