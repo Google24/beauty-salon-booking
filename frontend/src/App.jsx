@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import AdminUsers from './pages/AdminUsers'
 import AdminServices from './pages/AdminServices'
 import AdminBookings from './pages/AdminBookings'
+import AdminDashboard from './pages/AdminDashboard'
 import About from './pages/About'
 import Login from './pages/Login'
 import MasterBookings from './pages/MasterBookings'
@@ -33,7 +34,8 @@ function App() {
             <Route path="/profile" element={<Profile />} />
           </Route>
           <Route element={<ProtectedRoute adminOnly />}>
-            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/services" element={<AdminServices />} />
             <Route path="/admin/bookings" element={<AdminBookings />} />
           </Route>

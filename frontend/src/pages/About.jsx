@@ -48,7 +48,7 @@ function About() {
         </div>
         <iframe
           title="Карта расположения Atelier Beauté"
-          src="https://www.google.com/maps?q=Moscow%20Tverskaya%20Street%2012&output=embed"
+          src="https://yandex.ru/map-widget/v1/?text=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%2C%20%D0%A2%D0%B2%D0%B5%D1%80%D1%81%D0%BA%D0%B0%D1%8F%2012&z=15"
           className="mt-6 h-80 w-full border-0 sm:h-96"
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"

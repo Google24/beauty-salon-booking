@@ -62,7 +62,16 @@ function Masters() {
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {masters.map((master) => (
             <article key={master.id} className="rounded-2xl bg-[var(--color-white)] p-6 shadow-[0_14px_35px_rgba(74,48,71,0.1)] ring-1 ring-[var(--color-sand)]/70">
-              <h2 className="break-words text-xl font-semibold text-[var(--color-plum)]">{master.display_name || master.name || 'Мастер'}</h2>
+              <div className="flex items-center gap-4">
+                {master.photo || master.image ? (
+                  <img src={master.photo || master.image} alt="" className="h-14 w-14 rounded-full object-cover" />
+                ) : (
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--color-blush)] text-lg font-semibold text-[var(--color-white)]">
+                    {(master.display_name || master.name || 'Мастер').split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}
+                  </span>
+                )}
+                <h2 className="break-words text-xl font-semibold text-[var(--color-plum)]">{master.display_name || master.name || 'Мастер'}</h2>
+              </div>
               <p className="mt-2 text-sm font-medium text-[var(--color-gold)]">{specializationLabels[master.specialization] || master.specialization || 'Специалист салона'}</p>
               {(master.rating ?? master.average_rating) != null && <p className="mt-2 text-sm font-medium text-[var(--color-plum)]">Рейтинг: {Number(master.rating ?? master.average_rating).toFixed(1)} ★</p>}
               <p className="mt-4 text-sm leading-6 text-[var(--color-muted)]">{master.info || master.description || 'Информация о мастере пока не добавлена.'}</p>
