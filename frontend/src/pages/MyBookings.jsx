@@ -40,7 +40,14 @@ function MyBookings() {
         const bookingList = Array.isArray(data) ? data : data.results || []
 
         if (isMounted) {
-          setBookings(bookingList)
+          setBookings([...bookingList].sort((first, second) => {
+            const firstFuture = new Date(first.start_at) >= new Date()
+            const secondFuture = new Date(second.start_at) >= new Date()
+            if (firstFuture !== secondFuture) return firstFuture ? -1 : 1
+            return secondFuture
+              ? new Date(first.start_at) - new Date(second.start_at)
+              : new Date(second.start_at) - new Date(first.start_at)
+          }))
         }
       } catch {
         if (isMounted) {
@@ -194,7 +201,11 @@ function MyBookings() {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[var(--color-muted)]">Мастер</dt>
+                    <dt className="text-[var(--color-muted)]">Стоимость</dt>
+                     <dd className="mt-1 font-medium text-[var(--color-ink)]">{booking.total_price != null ? `${Number(booking.total_price).toLocaleString('ru-RU')} ₽` : '—'}</dd>
+                   </div>
+                   <div>
+                     <dt className="text-[var(--color-muted)]">Мастер</dt>
                     <dd className="mt-1 font-medium text-[var(--color-ink)]">
                       {booking.master_name || booking.master_display_name || `Мастер #${booking.master}`}
                     </dd>
