@@ -44,3 +44,15 @@ export function deleteService(id, token) {
     token,
   })
 }
+
+export function getAdminBookings(token) {
+  return apiRequest('/bookings/bookings/', { token })
+}
+
+export function updateBookingStatus(id, status, token) {
+  return apiRequest(`/bookings/bookings/${id}/status/`, {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify({ status }),
+  })
+}
