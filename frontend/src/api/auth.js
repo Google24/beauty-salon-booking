@@ -24,3 +24,15 @@ export function register(data) {
     }),
   })
 }
+
+export function changePassword(data, token) {
+  return apiRequest('/auth/change-password/', {
+    method: 'POST',
+    token,
+    body: JSON.stringify({
+      old_password: data.old_password,
+      new_password: data.new_password,
+      new_password2: data.new_password2,
+    }),
+  })
+}
