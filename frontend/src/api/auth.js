@@ -25,6 +25,14 @@ export function register(data) {
   })
 }
 
+export function updateMe(data, token) {
+  return apiRequest('/auth/me/', {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify(data),
+  })
+}
+
 export function changePassword(data, token) {
   return apiRequest('/auth/change-password/', {
     method: 'POST',

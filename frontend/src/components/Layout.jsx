@@ -47,10 +47,10 @@ function Layout({ children }) {
               Мастера
             </NavLink>
             <NavLink
-              to="/my-bookings"
+              to="/profile"
               className="transition-colors hover:text-[var(--color-plum)]"
             >
-              Мои записи
+              Личный кабинет
             </NavLink>
             {isAdmin && (
               <div className="flex items-center gap-3 rounded-full bg-[var(--color-sand)]/40 px-3 py-2">
@@ -123,8 +123,8 @@ function Layout({ children }) {
           <NavLink to="/masters" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Мастера
           </NavLink>
-          <NavLink to="/my-bookings" className="whitespace-nowrap hover:text-[var(--color-plum)]">
-            Мои записи
+          <NavLink to="/profile" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+            Личный кабинет
           </NavLink>
           {isAdmin && (
             <div className="flex items-center gap-4 rounded-full bg-[var(--color-sand)]/40 px-3 py-2">
