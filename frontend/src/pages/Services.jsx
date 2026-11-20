@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import SkeletonCard from '../components/SkeletonCard'
+import { NavLink } from 'react-router-dom'
 import { getServices } from '../api/services'
 
 function Services() {
@@ -79,9 +80,10 @@ function Services() {
             const duration = service.duration_min || service.duration
 
             return (
-              <article
+              <NavLink
                 key={service.id}
-                className="rounded-2xl bg-[var(--color-white)] p-6 shadow-[0_14px_35px_rgba(74,48,71,0.1)] ring-1 ring-[var(--color-sand)]/70"
+                to={`/masters?service=${encodeURIComponent(service.id)}`}
+                className="block rounded-2xl bg-[var(--color-white)] p-6 shadow-[0_14px_35px_rgba(74,48,71,0.1)] ring-1 ring-[var(--color-sand)]/70 transition hover:-translate-y-1 hover:ring-[var(--color-gold)]"
               >
                 <h2 className="break-words text-xl font-semibold text-[var(--color-plum)]">
                   {title}
@@ -92,7 +94,7 @@ function Services() {
                 <p className="mt-2 text-sm text-[var(--color-muted)]">
                   Длительность: {duration ? `${duration} мин` : 'не указана'}
                 </p>
-              </article>
+              </NavLink>
             )
           })}
         </div>

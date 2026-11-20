@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { createBooking, getSlots } from '../api/bookings'
 import { getMasters } from '../api/masters'
 import { getServices } from '../api/services'
@@ -31,11 +31,14 @@ function getBookingError(requestError, fallbackMessage) {
 
 function Booking() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const initialServiceId = searchParams.get('service') || ''
+  const initialMasterId = searchParams.get('master') || ''
   const { token } = useAuth()
   const [masters, setMasters] = useState([])
   const [services, setServices] = useState([])
-  const [selectedMasterId, setSelectedMasterId] = useState('')
-  const [selectedServiceId, setSelectedServiceId] = useState('')
+  const [selectedMasterId, setSelectedMasterId] = useState(initialMasterId)
+  const [selectedServiceId, setSelectedServiceId] = useState(initialServiceId)
   const [mastersLoading, setMastersLoading] = useState(true)
   const [servicesLoading, setServicesLoading] = useState(true)
   const [mastersError, setMastersError] = useState(false)
@@ -61,6 +64,7 @@ function Booking() {
 
         if (isMounted) {
           setMasters(masterList)
+          if (initialMasterId) setSelectedMasterId(initialMasterId)
         }
       } catch {
         if (isMounted) {
@@ -79,6 +83,7 @@ function Booking() {
 
         if (isMounted) {
           setServices(data)
+          if (initialServiceId) setSelectedServiceId(initialServiceId)
         }
       } catch {
         if (isMounted) {
@@ -97,7 +102,7 @@ function Booking() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [initialMasterId, initialServiceId])
 
   async function handleSubmit(event) {
     event.preventDefault()
