@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { useSearchParams } from 'react-router-dom'
 import AdminTable from '../../components/AdminTable'
 import {
   Badge,
@@ -34,9 +35,10 @@ import {
 const EMPTY_STATUS_FORM = { status: '', comment: '' }
 
 export default function AdminBookings() {
+  const [searchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebouncedValue(search, 300)
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState(() => searchParams.get('status') || '')
   const [masterFilter, setMasterFilter] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')

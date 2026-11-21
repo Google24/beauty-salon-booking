@@ -156,7 +156,7 @@ export default function AdminTable({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setPage((value) => Math.max(1, value - 1))}
+              onClick={() => setPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className="rounded-lg border border-[var(--color-sand)] px-3 py-2 text-[var(--color-plum)] transition hover:bg-[var(--color-ivory)] disabled:cursor-not-allowed disabled:opacity-40"
             >
@@ -167,7 +167,7 @@ export default function AdminTable({
             </span>
             <button
               type="button"
-              onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
+              onClick={() => setPage(Math.min(pageCount, currentPage + 1))}
               disabled={currentPage === pageCount}
               className="rounded-lg border border-[var(--color-sand)] px-3 py-2 text-[var(--color-plum)] transition hover:bg-[var(--color-ivory)] disabled:cursor-not-allowed disabled:opacity-40"
             >
