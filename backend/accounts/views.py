@@ -1,4 +1,4 @@
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter,OrderingFilter
 from accounts.permissions import IsAdmin
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status, viewsets
@@ -69,13 +69,23 @@ class AdminUserViewSet(viewsets.ModelViewSet):
     serializer_class = AdminUserSerializer
     permission_classes = (IsAdmin,)
     http_method_names = ("get", "patch", "head", "options")
-    filter_backends = (SearchFilter,)
+    filter_backends = (SearchFilter, OrderingFilter)
     search_fields = (
         "email",
         "first_name",
         "last_name",
         "phone",
     )
+    ordering_fields = (
+        "email",
+        "first_name",
+        "last_name",
+        "role",
+        "is_active",
+        "is_staff",
+        "created_at",
+    )
+    ordering = ("email",)
 
     def get_queryset(self):
         return User.objects.all().order_by("-created_at")
