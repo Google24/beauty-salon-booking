@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom'
 import { getServices } from '../api/services'
 
 const MEDIA_BASE = 'http://127.0.0.1:8000'
+
 function mediaUrl(value) {
   if (!value) return ''
   return value.startsWith('http') ? value : `${MEDIA_BASE}${value}`
@@ -93,7 +94,6 @@ function Services() {
               >
                 {service.image ? <img src={mediaUrl(service.image)} alt={title} className="mb-5 h-44 w-full rounded-xl object-cover transition duration-300 group-hover:scale-105" onError={(event) => { event.currentTarget.style.display = 'none' }} /> : <div className="mb-5 flex h-44 items-center justify-center rounded-xl bg-[var(--color-blush)]/40 text-4xl text-[var(--color-plum)]">✦</div>}
                 {service.description && <div className="pointer-events-none absolute inset-x-4 top-4 rounded-xl bg-[var(--color-plum-deep)]/95 p-4 text-sm leading-5 text-white opacity-0 shadow-xl transition duration-200 group-hover:opacity-100 group-focus:opacity-100"><span className="font-semibold">О процедуре</span><p className="mt-2">{service.description}</p></div>}
-
                 <h2 className="break-words text-xl font-semibold text-[var(--color-plum)]">
                   {title}
                 </h2>
@@ -103,6 +103,7 @@ function Services() {
                 <p className="mt-2 text-sm text-[var(--color-muted)]">
                   Длительность: {duration ? `${duration} мин` : 'не указана'}
                 </p>
+                <span className="mt-5 inline-flex rounded-lg bg-[var(--color-plum)] px-4 py-2 text-sm font-medium text-white">Выбрать мастера →</span>
               </NavLink>
             )
           })}

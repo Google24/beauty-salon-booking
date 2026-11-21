@@ -1,30 +1,22 @@
-const API_URL = import.meta.env.VITE_API_URL
+import { api } from './api'
 
+/**
+ * Обратная совместимость для страниц, которые используют apiRequest().
+ * Все запросы идут через один axios-инстанс с JWT/refresh-интерсепторами.
+ */
 export async function apiRequest(path, options = {}) {
-  const { token, headers: customHeaders, ...fetchOptions } = options
+  const { token, headers, ...requestOptions } = options
 
-  const headers = {
-    'Content-Type': 'application/json',
-    ...customHeaders,
-  }
-
-  if (token) {
-    headers.Authorization = `Bearer ${token}`
-  }
-
-  const response = await fetch(`${API_URL}${path}`, {
-    ...fetchOptions,
-    headers,
+  const response = await api.request({
+    url: path,
+    ...requestOptions,
+    headers: {
+      ...headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   })
 
-  const data = await response.json().catch(() => null)
-
-  if (!response.ok) {
-    const error = new Error(data?.detail || 'Ошибка запроса к API')
-    error.status = response.status
-    error.data = data
-    throw error
-  }
-
-  return data
+  return response.data
 }
+
+export default apiRequest

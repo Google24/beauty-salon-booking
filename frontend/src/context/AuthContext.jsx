@@ -1,42 +1,69 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { getMe, login } from '../api/auth'
+import { clearTokens, getAccessToken } from '../api/api'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem('access'))
+  const [token, setToken] = useState(() => getAccessToken())
   const [user, setUser] = useState(null)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
+    let isMounted = true
+
     if (!token) {
-      setUser(null)
-      return
+      setReady(true)
+      return () => {
+        isMounted = false
+      }
     }
 
-    getMe(token)
-      .then(setUser)
-      .catch(() => {
-        localStorage.removeItem('access')
-        localStorage.removeItem('refresh')
-        setToken(null)
-        setUser(null)
+    setReady(false)
+
+    getMe()
+      .then((currentUser) => {
+        if (isMounted) setUser(currentUser)
       })
+      .catch(() => {
+        if (isMounted) {
+          setUser(null)
+        }
+      })
+      .finally(() => {
+        if (isMounted) setReady(true)
+      })
+
+    return () => {
+      isMounted = false
+    }
   }, [token])
+
+  useEffect(() => {
+    function handleUnauthorized() {
+      setToken(null)
+      setUser(null)
+      setReady(true)
+    }
+
+    window.addEventListener('app:unauthorized', handleUnauthorized)
+
+    return () => window.removeEventListener('app:unauthorized', handleUnauthorized)
+  }, [])
 
   async function signIn(email, password) {
     const tokens = await login(email, password)
 
-    localStorage.setItem('access', tokens.access)
-    localStorage.setItem('refresh', tokens.refresh)
     setToken(tokens.access)
 
-    const currentUser = await getMe(tokens.access)
+    const currentUser = await getMe()
     setUser(currentUser)
+
+    return currentUser
   }
 
   function signOut() {
-    localStorage.removeItem('access')
-    localStorage.removeItem('refresh')
+    clearTokens()
     setToken(null)
     setUser(null)
   }
@@ -46,8 +73,8 @@ export function AuthProvider({ children }) {
   }
 
   const value = useMemo(
-    () => ({ token, user, signIn, signOut, updateUser }),
-    [token, user],
+    () => ({ token, user, ready, signIn, signOut, updateUser }),
+    [token, user, ready],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -53,33 +53,12 @@ function Layout({ children }) {
               Личный кабинет
             </NavLink>
             {isAdmin && (
-              <div className="flex items-center gap-3 rounded-full bg-[var(--color-sand)]/40 px-3 py-2">
-                <NavLink
-                  to="/admin"
-                  end
-                  className={({ isActive }) => `whitespace-nowrap transition-colors ${isActive ? 'font-semibold text-[var(--color-plum-deep)]' : 'text-[var(--color-muted)] hover:text-[var(--color-plum)]'}`}
-                >
-                  Админ-панель
-                </NavLink>
-                <NavLink
-                  to="/admin/users"
-                  className={({ isActive }) => `whitespace-nowrap transition-colors ${isActive ? 'font-semibold text-[var(--color-plum-deep)]' : 'text-[var(--color-muted)] hover:text-[var(--color-plum)]'}`}
-                >
-                  Пользователи
-                </NavLink>
-                <NavLink
-                  to="/admin/services"
-                  className={({ isActive }) => `whitespace-nowrap transition-colors ${isActive ? 'font-semibold text-[var(--color-plum-deep)]' : 'text-[var(--color-muted)] hover:text-[var(--color-plum)]'}`}
-                >
-                  Услуги
-                </NavLink>
-                <NavLink
-                  to="/admin/bookings"
-                  className={({ isActive }) => `whitespace-nowrap transition-colors ${isActive ? 'font-semibold text-[var(--color-plum-deep)]' : 'text-[var(--color-muted)] hover:text-[var(--color-plum)]'}`}
-                >
-                  Записи
-                </NavLink>
-              </div>
+              <NavLink
+                to="/admin"
+                className={({ isActive }) => `whitespace-nowrap transition-colors ${isActive ? 'font-semibold text-[var(--color-plum-deep)]' : 'text-[var(--color-muted)] hover:text-[var(--color-plum)]'}`}
+              >
+                Админ-панель
+              </NavLink>
             )}
             {isMaster && (
               <NavLink
@@ -142,17 +121,9 @@ function Layout({ children }) {
             Личный кабинет
           </NavLink>
           {isAdmin && (
-            <div className="flex items-center gap-4 rounded-full bg-[var(--color-sand)]/40 px-3 py-2">
-              <NavLink to="/admin/users" className={({ isActive }) => `whitespace-nowrap ${isActive ? 'font-semibold text-[var(--color-plum-deep)]' : 'hover:text-[var(--color-plum)]'}`}>
-                Пользователи
-              </NavLink>
-              <NavLink to="/admin/services" className={({ isActive }) => `whitespace-nowrap ${isActive ? 'font-semibold text-[var(--color-plum-deep)]' : 'hover:text-[var(--color-plum)]'}`}>
-                Услуги
-              </NavLink>
-              <NavLink to="/admin/bookings" className={({ isActive }) => `whitespace-nowrap ${isActive ? 'font-semibold text-[var(--color-plum-deep)]' : 'hover:text-[var(--color-plum)]'}`}>
-                Записи
-              </NavLink>
-            </div>
+            <NavLink to="/admin" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+              Админ-панель
+            </NavLink>
           )}
           {isMaster && (
             <NavLink to="/master/bookings" className="whitespace-nowrap hover:text-[var(--color-plum)]">
