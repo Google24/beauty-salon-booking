@@ -97,6 +97,7 @@ class MasterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Пользователь должен иметь роль «мастер»."
             )
+
         return value
 
 

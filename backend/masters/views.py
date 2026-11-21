@@ -36,13 +36,12 @@ class MasterViewSet(viewsets.ModelViewSet):
         is_admin = (
             user.is_authenticated
             and (user.role == "admin" or user.is_superuser)
-
         )
+
         master_services = MasterService.objects.select_related("service")
-        
+
         if not is_admin:
             master_services = master_services.filter(service__is_active=True)
-
 
         queryset = (
             Master.objects
@@ -101,10 +100,11 @@ class MasterServiceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         master_id = self.request.query_params.get("master")
+
         if master_id:
             queryset = queryset.filter(master_id=master_id)
-        return queryset
 
+        return queryset
 
 
 class WorkScheduleViewSet(viewsets.ModelViewSet):

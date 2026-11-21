@@ -55,6 +55,7 @@ class BookingSerializer(serializers.ModelSerializer):
         source="workplace.name",
         read_only=True,
     )
+    has_review = serializers.SerializerMethodField()
     service_ids = serializers.PrimaryKeyRelatedField(
         queryset=Service.objects.filter(is_active=True),
         many=True,
@@ -74,12 +75,13 @@ class BookingSerializer(serializers.ModelSerializer):
             "client_email",
             "client_first_name",
             "client_last_name",
-            "client_name", 
-            "client_phone",           
+            "client_name",
+            "client_phone",
             "master",
             "master_name",
             "workplace",
             "workplace_name",
+            "has_review",
             "service_ids",
             "services",
             "start_at",
@@ -98,8 +100,12 @@ class BookingSerializer(serializers.ModelSerializer):
             "created_at",
             "services",
         )
+
     def get_client_name(self, obj) -> str:
         return obj.client.full_name
+
+    def get_has_review(self, obj) -> bool:
+        return hasattr(obj, "review")
 
     def validate(self, attrs):
         master = attrs["master"]
@@ -179,6 +185,42 @@ class ReviewSerializer(serializers.ModelSerializer):
                 "Оценка должна быть от 1 до 5."
             )
         return value
+    
+class PublicReviewSerializer(serializers.ModelSerializer):
+    client_display = serializers.SerializerMethodField()
+    master_name = serializers.CharField(
+        source="booking.master.display_name",
+        read_only=True,
+    )
+    master = serializers.IntegerField(
+        source="booking.master_id",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Review
+        fields = (
+            "id",
+            "master",
+            "master_name",
+            "client_display",
+            "rating",
+            "text",
+            "created_at",
+        )
+        read_only_fields = fields
+
+    def get_client_display(self, obj) -> str:
+        first_name = (obj.booking.client.first_name or "").strip()
+        last_name = (obj.booking.client.last_name or "").strip()
+
+        if first_name and last_name:
+            return f"{first_name} {last_name[0]}."
+        if first_name:
+            return first_name
+
+        return "Клиент"
+
 
 class AdminReviewSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(
@@ -201,6 +243,7 @@ class AdminReviewSerializer(serializers.ModelSerializer):
         source="booking.status",
         read_only=True,
     )
+
     class Meta:
         model = Review
         fields = (
@@ -216,7 +259,8 @@ class AdminReviewSerializer(serializers.ModelSerializer):
             "created_at",
         )
         read_only_fields = fields
-         
+
+
 class BookingStatusSerializer(serializers.Serializer):
     status = serializers.ChoiceField(
         choices=Booking.Status.choices,

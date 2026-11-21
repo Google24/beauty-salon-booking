@@ -14,13 +14,14 @@ from drf_spectacular.utils import (
     extend_schema_view,
 )
 from accounts.permissions import IsAdmin
-from .models import Booking, BookingHistory, BookingService,Review
+from .models import Booking, BookingHistory, BookingService, Review
 from .serializers import (
     AdminReviewSerializer,
     AvailableSlotSerializer,
     BookingHistorySerializer,
     BookingSerializer,
     BookingStatusSerializer,
+    PublicReviewSerializer,
     ReviewSerializer,
 )
 from .services import (get_available_slots,
@@ -152,28 +153,43 @@ class BookingViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(master__user=user)
         else:
             queryset = queryset.filter(client=user)
+
         query = self.request.query_params
         status_value = query.get("status")
+
         if status_value:
             queryset = queryset.filter(status=status_value)
+
         master_id = query.get("master")
+
         if master_id:
             queryset = queryset.filter(master_id=master_id)
+
         workplace_id = query.get("workplace")
+
         if workplace_id:
             queryset = queryset.filter(workplace_id=workplace_id)
+
         client_id = query.get("client")
+
         if client_id:
             queryset = queryset.filter(client_id=client_id)
+
         date_from = parse_date(query.get("date_from", ""))
+
         if date_from:
             queryset = queryset.filter(start_at__date__gte=date_from)
+
         date_to = parse_date(query.get("date_to", ""))
+
         if date_to:
             queryset = queryset.filter(start_at__date__lte=date_to)
+
         exact_date = parse_date(query.get("date", ""))
+
         if exact_date:
             queryset = queryset.filter(start_at__date=exact_date)
+
         return queryset
 
     def get_permissions(self):
@@ -378,6 +394,34 @@ class BookingViewSet(viewsets.ModelViewSet):
         return Response(BookingSerializer(booking).data)
 
 
+class PublicReviewViewSet(viewsets.ReadOnlyModelViewSet):
+    """Публичные отзывы для сайта: без email и персональных данных клиента."""
+
+    serializer_class = PublicReviewSerializer
+    permission_classes = (permissions.AllowAny,)
+    filter_backends = (OrderingFilter,)
+    ordering_fields = ("created_at", "rating", "id")
+    ordering = ("-created_at",)
+
+    def get_queryset(self):
+        queryset = Review.objects.select_related(
+            "booking__client",
+            "booking__master",
+        ).filter(booking__status=Booking.Status.DONE)
+
+        master_id = self.request.query_params.get("master")
+
+        if master_id:
+            queryset = queryset.filter(booking__master_id=master_id)
+
+        rating = self.request.query_params.get("rating")
+
+        if rating:
+            queryset = queryset.filter(rating=rating)
+
+        return queryset
+
+
 class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = AdminReviewSerializer
     permission_classes = (IsAdmin,)
@@ -391,12 +435,16 @@ class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
     )
     ordering_fields = ("created_at", "rating", "id")
     ordering = ("-created_at",)
+
     def get_queryset(self):
         queryset = Review.objects.select_related(
             "booking__client",
             "booking__master",
         )
+
         rating = self.request.query_params.get("rating")
+
         if rating:
             queryset = queryset.filter(rating=rating)
+
         return queryset

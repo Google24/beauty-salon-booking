@@ -73,7 +73,6 @@ class Service(models.Model):
         null=True,
         verbose_name="Изображение услуги",
     )
-    
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата создания",

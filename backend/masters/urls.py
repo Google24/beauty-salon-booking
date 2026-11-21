@@ -8,6 +8,9 @@ from .views import (
 
 router = DefaultRouter()
 
+# Важно: пустой префикс MasterViewSet должен быть последним,
+# иначе он перехватывает /master-services/, /schedules/ и /absences/
+# как детальный маршрут мастера.
 router.register(
     "master-services",
     MasterServiceViewSet,
@@ -23,7 +26,6 @@ router.register(
     MasterAbsenceViewSet,
     basename="absence",
 )
-
 router.register("", MasterViewSet, basename="master")
 
 urlpatterns = router.urls

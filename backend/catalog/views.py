@@ -19,16 +19,21 @@ class AdminWritePublicReadMixin:
 
         return [IsAdmin()]
 
+
 def user_is_admin(request):
     user = getattr(request, "user", None)
+
     return bool(
         user
         and user.is_authenticated
         and (user.role == "admin" or user.is_superuser)
     )
+
+
 def parse_bool(value):
     if value is None:
         return None
+
     return str(value).strip().lower() in ("1", "true", "yes", "on")
 
 
@@ -39,6 +44,7 @@ class ServiceCategoryViewSet(
     serializer_class = ServiceCategorySerializer
     filter_backends = (SearchFilter,)
     search_fields = ("name",)
+
     def get_queryset(self):
         queryset = ServiceCategory.objects.all()
 
@@ -68,7 +74,7 @@ class ServiceViewSet(
             queryset = queryset.filter(category_id=category_id)
 
         is_active = parse_bool(self.request.query_params.get("is_active"))
-        
+
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active)
 
@@ -88,12 +94,10 @@ class WorkplaceViewSet(
 
         if not user_is_admin(self.request):
             queryset = queryset.filter(is_active=True)
-        
+
         is_active = parse_bool(self.request.query_params.get("is_active"))
-        
+
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active)
-
-
 
         return queryset
