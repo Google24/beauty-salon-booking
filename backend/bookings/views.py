@@ -1,9 +1,11 @@
 from datetime import date
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_date
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_spectacular.utils import (
@@ -12,8 +14,9 @@ from drf_spectacular.utils import (
     extend_schema_view,
 )
 from accounts.permissions import IsAdmin
-from .models import Booking, BookingHistory, BookingService
+from .models import Booking, BookingHistory, BookingService,Review
 from .serializers import (
+    AdminReviewSerializer,
     AvailableSlotSerializer,
     BookingHistorySerializer,
     BookingSerializer,
@@ -109,6 +112,23 @@ class AvailableSlotsView(APIView):
 class BookingViewSet(viewsets.ModelViewSet):
     serializer_class = BookingSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = (
+        "client__email",
+        "client__first_name",
+        "client__last_name",
+        "master__display_name",
+        "workplace__name",
+    )
+    ordering_fields = (
+        "id",
+        "start_at",
+        "end_at",
+        "status",
+        "total_price",
+        "created_at",
+    )
+    ordering = ("-start_at",)
 
     def get_queryset(self):
         queryset = (
@@ -127,16 +147,40 @@ class BookingViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if user.is_superuser or user.role == "admin":
-            return queryset
-        if user.role == "master":
-            return queryset.filter(master__user=user)
-
-        return queryset.filter(client=user)
+            pass
+        elif user.role == "master":
+            queryset = queryset.filter(master__user=user)
+        else:
+            queryset = queryset.filter(client=user)
+        query = self.request.query_params
+        status_value = query.get("status")
+        if status_value:
+            queryset = queryset.filter(status=status_value)
+        master_id = query.get("master")
+        if master_id:
+            queryset = queryset.filter(master_id=master_id)
+        workplace_id = query.get("workplace")
+        if workplace_id:
+            queryset = queryset.filter(workplace_id=workplace_id)
+        client_id = query.get("client")
+        if client_id:
+            queryset = queryset.filter(client_id=client_id)
+        date_from = parse_date(query.get("date_from", ""))
+        if date_from:
+            queryset = queryset.filter(start_at__date__gte=date_from)
+        date_to = parse_date(query.get("date_to", ""))
+        if date_to:
+            queryset = queryset.filter(start_at__date__lte=date_to)
+        exact_date = parse_date(query.get("date", ""))
+        if exact_date:
+            queryset = queryset.filter(start_at__date=exact_date)
+        return queryset
 
     def get_permissions(self):
         if self.action in (
             "destroy",
             "set_status",
+            "admin_status",
         ):
             return [IsAdmin()]
 
@@ -332,3 +376,27 @@ class BookingViewSet(viewsets.ModelViewSet):
                 comment=comment or "Статус изменён администратором.",
             )
         return Response(BookingSerializer(booking).data)
+
+
+class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = AdminReviewSerializer
+    permission_classes = (IsAdmin,)
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = (
+        "booking__client__email",
+        "booking__client__first_name",
+        "booking__client__last_name",
+        "booking__master__display_name",
+        "text",
+    )
+    ordering_fields = ("created_at", "rating", "id")
+    ordering = ("-created_at",)
+    def get_queryset(self):
+        queryset = Review.objects.select_related(
+            "booking__client",
+            "booking__master",
+        )
+        rating = self.request.query_params.get("rating")
+        if rating:
+            queryset = queryset.filter(rating=rating)
+        return queryset
