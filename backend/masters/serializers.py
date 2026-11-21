@@ -89,7 +89,15 @@ class MasterSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id",
             "services",
+            "user_email",
         )
+
+    def validate_user(self, value):
+        if value.role != User.Role.MASTER:
+            raise serializers.ValidationError(
+                "Пользователь должен иметь роль «мастер»."
+            )
+        return value
 
 
 class WorkScheduleSerializer(serializers.ModelSerializer):
