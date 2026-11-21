@@ -8,7 +8,6 @@ from .views import (
 
 router = DefaultRouter()
 
-router.register("", MasterViewSet, basename="master")
 router.register(
     "master-services",
     MasterServiceViewSet,
@@ -24,5 +23,7 @@ router.register(
     MasterAbsenceViewSet,
     basename="absence",
 )
+
+router.register("", MasterViewSet, basename="master")
 
 urlpatterns = router.urls
