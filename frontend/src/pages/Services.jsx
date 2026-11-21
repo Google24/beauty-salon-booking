@@ -3,6 +3,12 @@ import SkeletonCard from '../components/SkeletonCard'
 import { NavLink } from 'react-router-dom'
 import { getServices } from '../api/services'
 
+const MEDIA_BASE = 'http://127.0.0.1:8000'
+function mediaUrl(value) {
+  if (!value) return ''
+  return value.startsWith('http') ? value : `${MEDIA_BASE}${value}`
+}
+
 function Services() {
   const [services, setServices] = useState([])
   const [search, setSearch] = useState('')
@@ -83,8 +89,11 @@ function Services() {
               <NavLink
                 key={service.id}
                 to={`/masters?service=${encodeURIComponent(service.id)}`}
-                className="block rounded-2xl bg-[var(--color-white)] p-6 shadow-[0_14px_35px_rgba(74,48,71,0.1)] ring-1 ring-[var(--color-sand)]/70 transition hover:-translate-y-1 hover:ring-[var(--color-gold)]"
+                className="group relative block overflow-hidden rounded-2xl bg-[var(--color-white)] p-6 shadow-[0_14px_35px_rgba(74,48,71,0.1)] ring-1 ring-[var(--color-sand)]/70 transition hover:-translate-y-1 hover:ring-[var(--color-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)]"
               >
+                {service.image ? <img src={mediaUrl(service.image)} alt={title} className="mb-5 h-44 w-full rounded-xl object-cover transition duration-300 group-hover:scale-105" onError={(event) => { event.currentTarget.style.display = 'none' }} /> : <div className="mb-5 flex h-44 items-center justify-center rounded-xl bg-[var(--color-blush)]/40 text-4xl text-[var(--color-plum)]">✦</div>}
+                {service.description && <div className="pointer-events-none absolute inset-x-4 top-4 rounded-xl bg-[var(--color-plum-deep)]/95 p-4 text-sm leading-5 text-white opacity-0 shadow-xl transition duration-200 group-hover:opacity-100 group-focus:opacity-100"><span className="font-semibold">О процедуре</span><p className="mt-2">{service.description}</p></div>}
+
                 <h2 className="break-words text-xl font-semibold text-[var(--color-plum)]">
                   {title}
                 </h2>
