@@ -75,7 +75,10 @@ function Masters() {
               <p className="mt-2 text-sm font-medium text-[var(--color-gold)]">{specializationLabels[master.specialization] || master.specialization || 'Специалист салона'}</p>
               {(master.rating ?? master.average_rating) != null && <p className="mt-2 text-sm font-medium text-[var(--color-plum)]">Рейтинг: {Number(master.rating ?? master.average_rating).toFixed(1)} ★</p>}
               <p className="mt-4 text-sm leading-6 text-[var(--color-muted)]">{master.info || master.description || 'Информация о мастере пока не добавлена.'}</p>
-              <NavLink to={`/booking?${serviceId ? `service=${encodeURIComponent(serviceId)}&` : ''}master=${encodeURIComponent(master.id)}`} className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-[var(--color-plum)] px-4 py-2 text-sm font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)]">Записаться</NavLink>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <NavLink to={`/booking?${serviceId ? `service=${encodeURIComponent(serviceId)}&` : ''}master=${encodeURIComponent(master.id)}`} className="inline-flex min-h-11 items-center rounded-xl bg-[var(--color-plum)] px-4 py-2 text-sm font-medium text-[var(--color-white)] transition hover:bg-[var(--color-plum-deep)]">Записаться</NavLink>
+                <NavLink to={`/reviews?master=${encodeURIComponent(master.id)}`} className="inline-flex min-h-11 items-center rounded-xl border border-[var(--color-sand)] px-4 py-2 text-sm font-medium text-[var(--color-plum)] transition hover:bg-[var(--color-ivory)]">Отзывы</NavLink>
+              </div>
             </article>
           ))}
         </div>

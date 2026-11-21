@@ -90,6 +90,11 @@ function MyBookings() {
     setReviewSubmitting(true)
     try {
       await createReview(reviewBookingId, { rating: reviewRating, text: reviewText }, token)
+      setBookings((currentBookings) =>
+        currentBookings.map((booking) =>
+          booking.id === reviewBookingId ? { ...booking, has_review: true } : booking,
+        ),
+      )
       setReviewBookingId(null)
       toast.success('Спасибо за отзыв!')
     } catch (requestError) {
@@ -211,7 +216,15 @@ function MyBookings() {
                     </dd>
                   </div>
                 </dl>
-                {booking.status === 'done' && (
+                {booking.status === 'done' && booking.has_review && (
+                  <p className="mt-6 rounded-xl bg-[#eaf5ed] px-4 py-3 text-sm text-[#3f7659]">
+                    ✓ Вы уже оставили отзыв.{' '}
+                    <NavLink to="/reviews" className="underline underline-offset-2">
+                      Посмотреть отзывы
+                    </NavLink>
+                  </p>
+                )}
+                {booking.status === 'done' && !booking.has_review && (
                   <button
                     type="button"
                     onClick={() => openReviewModal(booking.id)}

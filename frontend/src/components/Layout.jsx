@@ -47,6 +47,12 @@ function Layout({ children }) {
               Мастера
             </NavLink>
             <NavLink
+              to="/reviews"
+              className="transition-colors hover:text-[var(--color-plum)]"
+            >
+              Отзывы
+            </NavLink>
+            <NavLink
               to="/profile"
               className="transition-colors hover:text-[var(--color-plum)]"
             >
@@ -116,6 +122,9 @@ function Layout({ children }) {
           </NavLink>
           <NavLink to="/masters" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Мастера
+          </NavLink>
+          <NavLink to="/reviews" className="whitespace-nowrap hover:text-[var(--color-plum)]">
+            Отзывы
           </NavLink>
           <NavLink to="/profile" className="whitespace-nowrap hover:text-[var(--color-plum)]">
             Личный кабинет
