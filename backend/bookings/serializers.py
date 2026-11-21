@@ -43,6 +43,10 @@ class BookingSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     client_name = serializers.SerializerMethodField()
+    client_phone = serializers.CharField(
+        source="client.phone",
+        read_only=True,
+    )
     master_name = serializers.CharField(
         source="master.display_name",
         read_only=True,
@@ -70,7 +74,8 @@ class BookingSerializer(serializers.ModelSerializer):
             "client_email",
             "client_first_name",
             "client_last_name",
-            "client_name",            
+            "client_name", 
+            "client_phone",           
             "master",
             "master_name",
             "workplace",
@@ -174,7 +179,44 @@ class ReviewSerializer(serializers.ModelSerializer):
                 "Оценка должна быть от 1 до 5."
             )
         return value
-    
+
+class AdminReviewSerializer(serializers.ModelSerializer):
+    client_name = serializers.CharField(
+        source="booking.client.full_name",
+        read_only=True,
+    )
+    client_email = serializers.EmailField(
+        source="booking.client.email",
+        read_only=True,
+    )
+    master_name = serializers.CharField(
+        source="booking.master.display_name",
+        read_only=True,
+    )
+    booking_start_at = serializers.DateTimeField(
+        source="booking.start_at",
+        read_only=True,
+    )
+    booking_status = serializers.CharField(
+        source="booking.status",
+        read_only=True,
+    )
+    class Meta:
+        model = Review
+        fields = (
+            "id",
+            "booking",
+            "client_name",
+            "client_email",
+            "master_name",
+            "booking_start_at",
+            "booking_status",
+            "rating",
+            "text",
+            "created_at",
+        )
+        read_only_fields = fields
+         
 class BookingStatusSerializer(serializers.Serializer):
     status = serializers.ChoiceField(
         choices=Booking.Status.choices,
