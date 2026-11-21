@@ -40,3 +40,16 @@ export function cancelBooking(id, token) {
     token,
   })
 }
+
+export function getPublicReviews(params = {}) {
+  const search = new URLSearchParams()
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === '' || value === null || value === undefined) return
+    search.set(key, String(value))
+  })
+
+  const query = search.toString()
+
+  return apiRequest(`/bookings/public-reviews/${query ? `?${query}` : ''}`)
+}
