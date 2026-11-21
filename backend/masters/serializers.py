@@ -68,11 +68,17 @@ class MasterSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
+    user_email = serializers.EmailField(
+        source="user.email",
+        read_only=True,
+    )
 
     class Meta:
         model = Master
         fields = (
             "id",
+            "user",
+            "user_email",
             "display_name",
             "specialization",
             "is_active",
