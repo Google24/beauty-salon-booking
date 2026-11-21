@@ -26,14 +26,23 @@ class MasterViewSet(viewsets.ModelViewSet):
         "display_name",
         "specialization",
         "info",
+        "user__email",
+        "user__first_name",
+        "user__last_name",
     )
 
     def get_queryset(self):
-        active_master_services  =  (
-            MasterService.objects
-            .select_related("service")
-            .filter(service__is_active=True)
+        user = self.request.user
+        is_admin = (
+            user.is_authenticated
+            and (user.role == "admin" or user.is_superuser)
+
         )
+        master_services = MasterService.objects.select_related("service")
+        
+        if not is_admin:
+            master_services = master_services.filter(service__is_active=True)
+
 
         queryset = (
             Master.objects
@@ -41,12 +50,12 @@ class MasterViewSet(viewsets.ModelViewSet):
             .prefetch_related(
                 Prefetch(
                     "master_services",
-                    queryset=active_master_services,
+                    queryset=master_services,
                 )
             )
         )
 
-        if self.request.method in permissions.SAFE_METHODS:
+        if not is_admin and self.request.method in permissions.SAFE_METHODS:
             queryset = queryset.filter(is_active=True)
 
         service_id = self.request.query_params.get("service")
@@ -88,6 +97,14 @@ class MasterServiceViewSet(viewsets.ModelViewSet):
     )
     serializer_class = MasterServiceSerializer
     permission_classes = (IsAdminOrReadOnly,)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        master_id = self.request.query_params.get("master")
+        if master_id:
+            queryset = queryset.filter(master_id=master_id)
+        return queryset
+
 
 
 class WorkScheduleViewSet(viewsets.ModelViewSet):
