@@ -17,6 +17,7 @@ class ServiceAdmin(admin.ModelAdmin):
         "price",
         "duration_min",
         "buffer_min",
+        "image",
         "is_active",
     )
     list_filter = ("category", "is_active")

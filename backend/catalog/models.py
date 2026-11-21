@@ -67,6 +67,13 @@ class Service(models.Model):
         default=WorkplaceRequirement.ANY,
         verbose_name="Требуемое рабочее место",
     )
+    image = models.FileField(
+        upload_to="services/",
+        blank=True,
+        null=True,
+        verbose_name="Изображение услуги",
+    )
+    
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата создания",

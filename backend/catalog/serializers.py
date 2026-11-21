@@ -29,6 +29,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             "buffer_min",
             "required_workplace_type",
             "category",
+            "image",
             "category_name",
             "is_active",
             "created_at",

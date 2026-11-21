@@ -64,7 +64,7 @@ function Masters() {
             <article key={master.id} className="rounded-2xl bg-[var(--color-white)] p-6 shadow-[0_14px_35px_rgba(74,48,71,0.1)] ring-1 ring-[var(--color-sand)]/70">
               <div className="flex items-center gap-4">
                 {master.photo || master.image ? (
-                  <img src={master.photo || master.image} alt="" className="h-14 w-14 rounded-full object-cover" />
+                  <img src={master.photo?.startsWith('http') ? master.photo : `http://127.0.0.1:8000${master.photo || master.image}`} alt="" className="h-14 w-14 rounded-full object-cover" />
                 ) : (
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--color-blush)] text-lg font-semibold text-[var(--color-white)]">
                     {(master.display_name || master.name || 'Мастер').split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}
