@@ -1,33 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-
-const NAV_GROUPS = [
-  {
-    title: 'Основное',
-    items: [
-      { to: '/admin', label: 'Обзор', icon: '◈', end: true },
-      { to: '/admin/bookings', label: 'Записи', icon: '▤' },
-      { to: '/admin/reviews', label: 'Отзывы', icon: '★' },
-    ],
-  },
-  {
-    title: 'Каталог',
-    items: [
-      { to: '/admin/categories', label: 'Категории', icon: '▦' },
-      { to: '/admin/services', label: 'Услуги', icon: '✂' },
-      { to: '/admin/workplaces', label: 'Рабочие места', icon: '▣' },
-    ],
-  },
-  {
-    title: 'Сотрудники',
-    items: [
-      { to: '/admin/users', label: 'Пользователи', icon: '◉' },
-      { to: '/admin/masters', label: 'Мастера', icon: '☺' },
-      { to: '/admin/schedules', label: 'Расписания', icon: '◷' },
-      { to: '/admin/absences', label: 'Отсутствия', icon: '◌' },
-    ],
-  },
-]
+import CommandPalette from './CommandPalette'
+import { ADMIN_NAV_GROUPS as NAV_GROUPS } from '../utils/adminNav'
 
 export default function AdminLayout() {
   const { user, signOut } = useAuth()
@@ -49,6 +23,18 @@ export default function AdminLayout() {
             Админ-панель
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event('admin:open-palette'))}
+          className="mx-3 mt-4 flex items-center gap-2 rounded-xl border border-[var(--color-sand)] px-3 py-2.5 text-left text-xs text-[var(--color-muted)] transition hover:border-[var(--color-plum)] hover:text-[var(--color-plum)]"
+        >
+          <span className="text-base text-[var(--color-gold)]">⌕</span>
+          <span className="flex-1">Быстрый переход</span>
+          <kbd className="rounded border border-[var(--color-sand)] px-1.5 py-0.5 text-[10px]">
+            Ctrl K
+          </kbd>
+        </button>
 
         <nav aria-label="Разделы админки" className="flex-1 space-y-6 overflow-y-auto px-3 py-6">
           {NAV_GROUPS.map((group) => (
@@ -115,6 +101,17 @@ export default function AdminLayout() {
               Панель управления салоном
             </p>
             <div className="flex items-center gap-3 text-xs text-[var(--color-muted)]">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event('admin:open-palette'))}
+                className="hidden items-center gap-2 rounded-lg border border-[var(--color-sand)] px-3 py-2 text-[var(--color-muted)] transition hover:border-[var(--color-plum)] hover:text-[var(--color-plum)] sm:flex"
+              >
+                <span className="text-sm">⌕</span>
+                Поиск по разделам
+                <kbd className="rounded border border-[var(--color-sand)] px-1.5 py-0.5 text-[10px]">
+                  Ctrl K
+                </kbd>
+              </button>
               <span className="hidden sm:inline">{user?.email}</span>
               <button
                 type="button"
@@ -155,6 +152,8 @@ export default function AdminLayout() {
           </div>
         </main>
       </div>
+
+      <CommandPalette />
     </div>
   )
 }

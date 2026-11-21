@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Link } from 'react-router-dom'
 import AdminTable from '../../components/AdminTable'
 import { Badge, PageHeader, StatusBadge } from '../../components/AdminUI'
@@ -10,7 +10,12 @@ import {
   unwrapList,
 } from '../../api/admin'
 import { useAdminData } from '../../hooks/useAdminData'
-import { errorText, formatDateTime } from '../../utils/admin'
+import {
+  STATUS_LABELS,
+  STATUS_OPTIONS,
+  errorText,
+  formatDateTime,
+} from '../../utils/admin'
 
 const SECTIONS = [
   { title: 'Пользователи', description: 'Роли, поиск и доступ', to: '/admin/users', icon: '◉' },
@@ -28,11 +33,12 @@ export default function AdminDashboard() {
   const [today] = useState(() => new Date().toLocaleDateString('sv-SE'))
 
   const { data, loading, error } = useAdminData(async () => {
-    const [users, services, masters, todayBookings] = await Promise.all([
+    const [users, services, masters, todayBookings, allBookings] = await Promise.all([
       getUsers(),
       getServices(),
       getMasters(),
       getBookings({ date: today }),
+      getBookings(),
     ])
 
     return {
@@ -40,6 +46,10 @@ export default function AdminDashboard() {
       services: unwrapList(services).length,
       masters: unwrapList(masters).length,
       todayBookings: unwrapList(todayBookings),
+      statusCounts: unwrapList(allBookings).reduce((counts, booking) => {
+        counts[booking.status] = (counts[booking.status] || 0) + 1
+        return counts
+      }, {}),
     }
   }, [])
 
@@ -102,6 +112,41 @@ export default function AdminDashboard() {
           <Link to="/admin/masters" className="mt-3 inline-block text-xs text-[var(--color-plum)] underline underline-offset-4">
             Команда →
           </Link>
+        </div>
+      </div>
+
+      <div className="mt-8 rounded-2xl bg-[var(--color-white)] p-6 shadow ring-1 ring-[var(--color-sand)]/80">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-semibold text-[var(--color-plum-deep)]">
+              Поток записей по статусам
+            </h2>
+            <p className="mt-1 text-xs text-[var(--color-muted)]">
+              Все записи в базе, включая завершённые и отменённые
+            </p>
+          </div>
+          <Badge tone="plum">{Object.values(data?.statusCounts || {}).reduce((sum, value) => sum + value, 0)} всего</Badge>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-stretch gap-2">
+          {STATUS_OPTIONS.map((status, index) => (
+            <Fragment key={status.value}>
+              <Link
+                to={`/admin/bookings?status=${status.value}`}
+                className="min-w-[130px] flex-1 rounded-xl border border-[var(--color-sand)] bg-[var(--color-ivory)]/60 px-4 py-3 transition hover:border-[var(--color-plum)] hover:shadow-sm"
+              >
+                <p className="text-[11px] tracking-[0.06em] text-[var(--color-muted)] uppercase">
+                  {STATUS_LABELS[status.value]}
+                </p>
+                <p className="mt-1 text-2xl font-semibold text-[var(--color-plum)]">
+                  {loading ? '—' : data?.statusCounts?.[status.value] || 0}
+                </p>
+              </Link>
+              {index < STATUS_OPTIONS.length - 1 && (
+                <span className="hidden items-center text-[var(--color-sand)] sm:flex">→</span>
+              )}
+            </Fragment>
+          ))}
         </div>
       </div>
 
