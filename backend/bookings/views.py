@@ -311,3 +311,24 @@ class BookingViewSet(viewsets.ModelViewSet):
             ReviewSerializer(review).data,
             status=status.HTTP_201_CREATED,
         )
+    @action(detail=True, methods=("patch",), url_path="admin-status")
+    def admin_status(self, request, pk=None):
+        serializer = BookingStatusSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new_status = serializer.validated_data["status"]
+        comment = serializer.validated_data["comment"]
+        with transaction.atomic():
+            booking = get_object_or_404(Booking.objects.select_for_update(), pk=pk)
+            old_status = booking.status
+            if old_status == new_status:
+                return Response({"detail": "Новый статус совпадает с текущим."}, status=status.HTTP_400_BAD_REQUEST)
+            booking.status = new_status
+            booking.save(update_fields=("status",))
+            BookingHistory.objects.create(
+                booking=booking,
+                from_status=old_status,
+                to_status=new_status,
+                changed_by=request.user,
+                comment=comment or "Статус изменён администратором.",
+            )
+        return Response(BookingSerializer(booking).data)
